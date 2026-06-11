@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>羲盛智数 - 居民端微信小程序原型 v1.0</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--brand:#FF6B35;--brand-light:#FF8C5A;--brand-dark:#E55A2B;--bg:#FFF3E0;--white:#FFFFFF;--card-bg:#FFFFFF;--text:#2D3436;--text-secondary:#636E72;--text-light:#B2BEC3;--gold:#FFB347;--border:#E0E0E0;--bg-input:#F0F0F0;--success:#00B894;--danger:#E17055;--info:#0984E3;--shadow:0 2px 8px rgba(0,0,0,0.08);--radius:12px;--radius-sm:8px;--radius-lg:20px}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;background:#E8E8E8;color:var(--text);display:flex;justify-content:center;align-items:center;min-height:100vh;padding:20px 0}
+.phone{width:375px;height:812px;background:var(--bg);border-radius:20px;overflow:hidden;position:relative;box-shadow:0 10px 40px rgba(0,0,0,0.3)}
+.status-bar{height:44px;background:var(--white);display:flex;align-items:center;justify-content:space-between;padding:0 20px;font-size:12px;font-weight:600;position:relative;z-index:100}
+.status-bar .time{font-size:14px;font-weight:700}
+.nav-bar{height:56px;background:var(--white);display:flex;align-items:center;justify-content:center;position:relative;z-index:99;border-bottom:1px solid var(--border)}
+.nav-bar .title{font-size:17px;font-weight:600;color:var(--text)}
+.nav-bar .back-btn{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:50%}
+.nav-bar .back-btn:active{background:var(--bg-input)}
+.nav-bar .back-btn svg{width:20px;height:20px}
+.tab-bar{position:absolute;bottom:0;left:0;right:0;height:56px;background:var(--white);display:flex;border-top:1px solid var(--border);z-index:100}
+.tab-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:2px}
+.tab-item svg{width:24px;height:24px}
+.tab-item .tab-label{font-size:11px}
+.tab-item.active .tab-label{color:var(--brand);font-weight:600}
+.tab-item:not(.active) .tab-label{color:var(--text-light)}
+.pc{height:calc(812px - 44px - 56px - 56px);overflow-y:auto;position:relative}
+.pc.nt{height:calc(812px - 44px - 56px)}
+.pc.fl{height:calc(812px - 44px)}
+.page{display:none;min-height:100%;background:var(--bg)}
+.page.active{display:block}
+.sc{padding:12px 16px 20px}
+.card{background:var(--card-bg);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;margin-bottom:12px}
+.btn{display:inline-flex;align-items:center;justify-content:center;height:44px;padding:0 24px;border-radius:22px;font-size:15px;font-weight:600;cursor:pointer;border:none;min-width:44px}
+.bp{background:var(--brand);color:#fff}.bp:active{background:var(--brand-dark)}
+.bo{background:transparent;color:var(--brand);border:2px solid var(--brand)}.bo:active{background:rgba(255,107,53,0.08)}
+.bs{height:32px;padding:0 16px;font-size:13px;border-radius:16px}.bb{width:100%}
+.inp{width:100%;height:40px;background:var(--bg-input);border:none;border-radius:var(--radius-lg);padding:0 16px;font-size:15px;outline:none;color:var(--text)}
+.inp::placeholder{color:var(--text-light)}
+.sb{display:flex;align-items:center;height:40px;background:var(--bg-input);border-radius:var(--radius-lg);padding:0 14px;gap:8px;cursor:pointer}
+.sb svg{width:18px;height:18px;flex-shrink:0}.sb span{color:var(--text-light);font-size:15px}
+.bn{position:relative;height:150px;border-radius:var(--radius);overflow:hidden;margin-bottom:12px}
+.bsl{width:100%;height:100%;display:none;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--brand),var(--gold));color:#fff;font-size:17px;font-weight:700;padding:20px;text-align:center}
+.bsl.ac{display:flex}
+.bd{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:6px}
+.bdt{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.5);transition:all .3s}
+.bdt.ac{background:#fff;width:18px;border-radius:3px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:12px}
+.gi{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer}
+.gi .iw{width:48px;height:48px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center}
+.gi .iw svg{width:28px;height:28px}.gi .lb{font-size:13px;color:var(--text);text-align:center}
+.sh{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;padding:0 2px}
+.sh .st{font-size:17px;font-weight:700}.sh .mr{font-size:13px;color:var(--text-secondary);cursor:pointer}
+.li{display:flex;align-items:center;padding:14px 0;border-bottom:1px solid #f5f5f5;cursor:pointer;gap:12px}
+.li:last-child{border-bottom:none}
+.li .av{width:44px;height:44px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;color:#fff}
+.li .ct{flex:1;min-width:0}.li .ct .tt{font-size:15px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.li .ct .su{font-size:13px;color:var(--text-secondary);margin-top:2px}
+.li .ar{color:var(--text-light);flex-shrink:0}
+.pcrd{background:var(--white);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);cursor:pointer}
+.pcrd .pimg{width:100%;height:140px;display:flex;align-items:center;justify-content:center;font-size:36px;color:#fff}
+.pcrd .pinf{padding:10px 12px}.pcrd .pnm{font-size:15px;font-weight:500;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pcrd .ppr{font-size:17px;font-weight:700;color:var(--brand)}
+.pcrd .ppr .ori{font-size:13px;color:var(--text-light);text-decoration:line-through;margin-left:6px;font-weight:400}
+.pcrd .pmt{font-size:11px;color:var(--text-secondary);margin-top:4px}
+.tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;background:rgba(255,179,71,0.2);color:var(--brand);margin-right:4px}
+.tgr{background:rgba(225,112,85,0.15);color:var(--danger)}.tgg{background:rgba(0,184,148,0.15);color:var(--success)}
+.toast{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.75);color:#fff;padding:12px 24px;border-radius:8px;font-size:15px;z-index:999;pointer-events:none;opacity:0;transition:opacity .3s;white-space:nowrap}
+.toast.show{opacity:1}
+.empty{text-align:center;padding:60px 40px}.empty .ei{font-size:48px;color:var(--text-light);margin-bottom:16px}
+.empty .et{font-size:15px;color:var(--text-light);margin-bottom:12px}
+.badge{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;border-radius:9px;background:var(--danger);color:#fff;font-size:10px;padding:0 5px}
+.mdov{position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:200;display:none;align-items:center;justify-content:center}
+.mdov.show{display:flex}
+.mdl{width:300px;background:#fff;border-radius:var(--radius);overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.2)}
+.mdl .mb{padding:24px;text-align:center}.mdl .mb .mt{font-size:17px;font-weight:700;margin-bottom:8px}
+.mdl .mb .md{font-size:15px;color:var(--text-secondary)}
+.mdl .ma{display:flex;border-top:1px solid var(--border)}
+.mdl .ma .mbn{flex:1;height:48px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;border:none;background:none}
+.mdl .ma .mbn.pr{color:var(--brand);font-weight:600;border-left:1px solid var(--border)}
+.oc{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:12px;overflow:hidden}
+.oc .oh{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid #f5f5f5}
+.oc .oh .sn{font-weight:600;font-size:15px}.oc .oh .os{font-size:13px}
+.oc .ob{padding:12px 16px}
+.oc .of{display:flex;justify-content:flex-end;gap:8px;padding:10px 16px;border-top:1px solid #f5f5f5}
+.pts{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;margin-bottom:10px;cursor:pointer}
+.pts .ptt{font-size:15px;font-weight:600;margin-bottom:6px}
+.pts .ptp{font-size:13px;color:var(--text-secondary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:8px}
+.pts .ptm{display:flex;justify-content:space-between;font-size:11px;color:var(--text-light)}
+.cmt{padding:12px 0;border-bottom:1px solid #f5f5f5}.cmt:last-child{border-bottom:none}
+.cmt .ch{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.cmt .ca{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;font-weight:600}
+.cmt .cn{font-size:13px;font-weight:600}.cmt .ctm{font-size:11px;color:var(--text-light)}
+.cmt .cb{font-size:15px;line-height:1.5}
+.cmt .cac{display:flex;gap:16px;margin-top:6px;font-size:11px;color:var(--text-light)}
+.cmt .cac span{cursor:pointer}
+.cmt .subc{margin-left:24px;margin-top:8px;padding-left:12px;border-left:2px solid #f0f0f0}
+.ts{display:flex;background:var(--bg-input);border-radius:20px;padding:3px;margin-bottom:12px}
+.ts .tsi{flex:1;height:36px;display:flex;align-items:center;justify-content:center;border-radius:18px;font-size:15px;cursor:pointer}
+.ts .tsi.ac{background:var(--white);color:var(--brand);font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,0.1)}
+.fb{display:flex;gap:8px;padding:8px 0;overflow-x:auto;flex-wrap:wrap}
+.fc{flex-shrink:0;padding:6px 14px;border-radius:16px;font-size:13px;background:var(--white);color:var(--text-secondary);cursor:pointer;border:1px solid var(--border);white-space:nowrap}
+.fc.ac{background:var(--brand);color:#fff;border-color:var(--brand)}
+.stp{display:flex;align-items:center;gap:0}
+.stp .sb{width:28px;height:28px;border-radius:50%;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;background:var(--white);font-size:16px;line-height:1}
+.stp .sn{width:36px;text-align:center;font-size:15px;font-weight:600}
+.cd{font-size:20px;font-weight:700;color:var(--brand);text-align:center;padding:16px}
+.fg{margin-bottom:14px}.fl{font-size:15px;font-weight:600;margin-bottom:6px;display:block}
+.ta{width:100%;min-height:80px;background:var(--bg-input);border:none;border-radius:var(--radius-sm);padding:12px;font-size:15px;resize:none;outline:none;font-family:inherit}
+.ni{padding:14px 0;border-bottom:1px solid #f5f5f5;cursor:pointer;display:flex;gap:10px}
+.ni .nd{width:8px;height:8px;border-radius:50%;background:var(--danger);flex-shrink:0;margin-top:6px}
+.ni.rd .nd{background:transparent}
+.ni .nc{flex:1}.ni .nt{font-size:15px;font-weight:500;margin-bottom:4px}
+.ni .ns{font-size:13px;color:var(--text-secondary)}.ni .ntm{font-size:11px;color:var(--text-light);margin-top:4px}
+.str{display:flex;gap:2px}.str svg{width:18px;height:18px}
+.flex{display:flex}.fcol{flex-direction:column}.aic{align-items:center}.jcb{justify-content:space-between}.f1{flex:1}.fw{flex-wrap:wrap}
+.g4{gap:4px}.g8{gap:8px}.g12{gap:12px}.g16{gap:16px}
+.tc{text-align:center}.tsm{font-size:13px}.tmd{font-size:15px}.tlg{font-size:17px}.txl{font-size:20px}
+.tsc{color:var(--text-secondary)}.tlt{color:var(--text-light)}.tbr{color:var(--brand)}.tdg{color:var(--danger)}
+.fbld{font-weight:700}.fmd{font-weight:500}
+.mt4{margin-top:4px}.mt8{margin-top:8px}.mt12{margin-top:12px}.mt16{margin-top:16px}.mt20{margin-top:20px}
+.mb4{margin-bottom:4px}.mb6{margin-bottom:6px}.mb8{margin-bottom:8px}.mb12{margin-bottom:12px}.mb16{margin-bottom:16px}
+.mla{margin-left:auto}.w100{width:100%}.py8{padding-top:8px;padding-bottom:8px}
+.bbar{position:absolute;bottom:0;left:0;right:0;background:var(--white);border-top:1px solid var(--border);z-index:50;padding:10px 16px;display:flex;align-items:center}
+</style>
+</head>
+<body>
+<div class="phone" id="app">
+<div class="status-bar"><span class="time">9:41</span><span style="display:flex;gap:6px;align-items:center"><span style="font-size:11px">&#9632;</span><span style="font-size:11px">&#9673;</span><span style="font-size:11px">88%</span></span></div>
+<div class="nav-bar" id="navBar" style="display:none"><div class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24" fill="none" stroke="#2D3436" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></div><span class="title" id="navTitle"></span></div>
+<!-- ===== P0-1: 首页 ===== -->
+<div class="page active" id="page-home"><div class="pc"><div class="sc">
+<div class="sb mb12" onclick="navTo('search')"><svg viewBox="0 0 24 24" fill="none" stroke="#B2BEC3" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span>搜索团长、商品、帖子...</span></div>
+<div class="bn" id="hb">
+<div class="bsl ac">社区团购火热进行中<br>新鲜水果低至5折</div>
+<div class="bsl">每日优选蔬菜<br>产地直供，当日送达</div>
+<div class="bsl">社区福利大放送<br>新用户首单立减10元</div>
+<div class="bd"><span class="bdt ac"></span><span class="bdt"></span><span class="bdt"></span></div>
+</div>
+<div class="card" style="background:linear-gradient(135deg,rgba(255,107,53,0.08),rgba(255,179,71,0.12));border-left:3px solid var(--brand);font-size:13px;color:var(--brand-dark);margin-bottom:12px">&#9654; 社区团购新上线，欢迎选购！新用户首单立减10元，团长招募中...</div>
+<div class="g4">
+<div class="gi" onclick="navTo('leader-home')"><div class="iw" style="background:rgba(255,107,53,0.12)"><svg viewBox="0 0 24 24" fill="none" stroke="#FF6B35" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></div><span class="lb">社区团购</span></div>
+<div class="gi" onclick="switchTab(1)"><div class="iw" style="background:rgba(9,132,227,0.12)"><svg viewBox="0 0 24 24" fill="none" stroke="#0984E3" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></div><span class="lb">周边商家</span></div>
+<div class="gi" onclick="switchTab(2)"><div class="iw" style="background:rgba(0,184,148,0.12)"><svg viewBox="0 0 24 24" fill="none" stroke="#00B894" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div><span class="lb">社区论坛</span></div>
+<div class="gi" onclick="switchTab(2);setTimeout(function(){var t=document.querySelector('#page-community .tsi:nth-child(2)');if(t)t.click()},300)"><div class="iw" style="background:rgba(255,179,71,0.15)"><svg viewBox="0 0 24 24" fill="none" stroke="#FFB347" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><span class="lb">知识问答</span></div>
+</div>
+<div class="sh"><span class="st">热门团长</span><span class="mr" onclick="navTo('leader-home')">更多 &#8250;</span></div>
+<div class="card" style="padding:12px">
+<div class="li" onclick="navTo('leader-home')"><div class="av" style="background:var(--brand)">张</div><div class="ct"><div class="tt">张姐好物</div><div class="su">好评率98% | 已服务1200+居民</div></div><span class="tag">推荐</span><span class="ar">&#8250;</span></div>
+<div class="li" onclick="navTo('leader-home')"><div class="av" style="background:#0984E3">李</div><div class="ct"><div class="tt">李明优选</div><div class="su">新鲜直达 | 已服务800+居民</div></div><span class="ar">&#8250;</span></div>
+<div class="li" onclick="navTo('leader-home')"><div class="av" style="background:#00B894">王</div><div class="ct"><div class="tt">王阿姨精选</div><div class="su">品质保障 | 已服务650+居民</div></div><span class="ar">&#8250;</span></div>
+<div class="li" onclick="navTo('leader-home')"><div class="av" style="background:#E17055">刘</div><div class="ct"><div class="tt">社区老刘</div><div class="su">实惠好物 | 已服务500+居民</div></div><span class="ar">&#8250;</span></div>
+</div>
+<div class="sh"><span class="st">论坛热帖</span><span class="mr" onclick="switchTab(2)">更多 &#8250;</span></div>
+<div class="pts" onclick="navTo('forum-detail')"><div class="ptt">转让闲置婴儿推车，九成新</div><div class="ptp">宝宝大了用不上了，买来500多，现在200转...</div><div class="ptm"><span>邻里互助</span><span>28评论 &middot; 2小时前</span></div></div>
+<div class="pts" onclick="navTo('forum-detail')"><div class="ptt">社区周末跳蚤市场活动通知</div><div class="ptp">本周六上午9点在小区广场举办跳蚤市场...</div><div class="ptm"><span>活动通知</span><span>15评论 &middot; 5小时前</span></div></div>
+<div class="pts" onclick="navTo('forum-detail')"><div class="ptt">推荐一个靠谱的家电维修师傅</div><div class="ptp">上次家里空调坏了，找了王师傅来修...</div><div class="ptm"><span>生活分享</span><span>42评论 &middot; 1天前</span></div></div>
+</div></div></div>
+
+<!-- ===== P0-2: 登录 ===== -->
+<div class="page" id="page-login"><div class="pc fl"><div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:40px;text-align:center">
+<div style="width:80px;height:80px;border-radius:20px;background:linear-gradient(135deg,var(--brand),var(--gold));display:flex;align-items:center;justify-content:center;margin-bottom:24px"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" width="40" height="40"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-8 8-8s8 4 8 8"/></svg></div>
+<div class="txl fbld mb8">羲盛智数</div><div class="tmd tsc mb40">智能化社区服务平台</div>
+<div style="background:var(--white);border-radius:var(--radius);padding:24px;width:100%;box-shadow:var(--shadow)">
+<div class="tmd tsc mb20">授权微信登录后，即可使用全部功能</div>
+<button class="btn bp bb" onclick="doLogin()" style="background:#07C160;height:48px;border-radius:24px">微信一键登录</button>
+<div class="tsm tlt mt16" style="font-size:11px">登录即表示同意《用户协议》和《隐私政策》</div>
+</div></div></div></div>
+
+<!-- ===== P0-3: 团长主页 ===== -->
+<div class="page" id="page-leader-home"><div class="pc nt"><div class="sc">
+<div class="card flex g12 aic mb8"><div class="av" style="background:var(--brand);width:56px;height:56px;font-size:24px">张</div><div class="f1"><div class="flex aic g8"><span class="fbld tlg">张姐好物</span><span class="tag">推荐</span></div><div class="tsm tsc mt4">好评率98% | 已服务1200+居民 | 距离1.2km</div></div><button class="btn bo bs" onclick="showToast('已分享至微信')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>分享</button></div>
+<div class="card" style="background:rgba(255,107,53,0.05);border-left:3px solid var(--brand);font-size:13px;color:var(--brand-dark);margin-bottom:8px;padding:10px 12px">&#9654; 今日到货：红富士苹果、有机蔬菜拼盘，数量有限先到先得！</div>
+<div class="sb mb8" onclick="navTo('leader-search')"><svg viewBox="0 0 24 24" fill="none" stroke="#B2BEC3" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span>搜索团长商品...</span></div>
+<div class="fb"><span class="fc ac" onclick="filterChip(this)">全部</span><span class="fc" onclick="filterChip(this)">水果</span><span class="fc" onclick="filterChip(this)">蔬菜</span><span class="fc" onclick="filterChip(this)">日用品</span><span class="fc" onclick="filterChip(this)">零食</span></div>
+<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
+<div class="pcrd" onclick="navTo('product-detail')"><div class="pimg" style="background:linear-gradient(135deg,#FF6B6B,#FF8E8E)">A</div><div class="pinf"><div class="pnm">烟台红富士苹果 5斤装</div><div class="ppr">29.9<span class="ori">49.9</span></div><div class="pmt">已售328份 | 库存56</div></div></div>
+<div class="pcrd" onclick="navTo('product-detail')"><div class="pimg" style="background:linear-gradient(135deg,#4CAF50,#81C784)">B</div><div class="pinf"><div class="pnm">有机蔬菜拼盘 3kg</div><div class="ppr">35.9<span class="ori">55.9</span></div><div class="pmt">已售215份 | 库存32</div></div></div>
+<div class="pcrd" onclick="navTo('product-detail')"><div class="pimg" style="background:linear-gradient(135deg,#FF9800,#FFB74D)">C</div><div class="pinf"><div class="pnm">库尔勒香梨 3斤</div><div class="ppr">19.9<span class="ori">35.9</span></div><div class="pmt">已售186份 | 库存78</div></div></div>
+<div class="pcrd" onclick="navTo('product-detail')"><div class="pimg" style="background:linear-gradient(135deg,#9C27B0,#CE93D8)">D</div><div class="pinf"><div class="pnm">越南火龙果 5斤</div><div class="ppr">25.9<span class="ori">42.9</span></div><div class="pmt">已售142份 | 库存45</div></div></div>
+<div class="pcrd" onclick="navTo('product-detail')"><div class="pimg" style="background:linear-gradient(135deg,#2196F3,#64B5F6)">E</div><div class="pinf"><div class="pnm">蓝月亮洗衣液 3kg</div><div class="ppr">39.9<span class="ori">59.9</span></div><div class="pmt">已售98份 | 库存120</div></div></div>
+<div class="pcrd" onclick="navTo('product-detail')"><div class="pimg" style="background:linear-gradient(135deg,#795548,#A1887F)">F</div><div class="pinf"><div class="pnm">三只松鼠坚果礼盒</div><div class="ppr">68.9<span class="ori">99.9</span></div><div class="pmt">已售256份 | 库存18</div></div></div>
+</div></div></div></div>
+
+<!-- ===== P0-4: 商品详情 ===== -->
+<div class="page" id="page-product-detail"><div class="pc nt"><div class="sc">
+<div style="height:260px;background:linear-gradient(135deg,#FF6B6B,#FF8E8E);display:flex;align-items:center;justify-content:center;font-size:60px;color:#fff;font-weight:700;border-radius:var(--radius)">A</div>
+<div class="card mt12"><div class="tlg fbld mb8">烟台红富士苹果 5斤装</div><div class="flex aic g8 mb8"><span style="font-size:24px;font-weight:700;color:var(--brand)">29.90</span><span style="font-size:15px;color:var(--text-light);text-decoration:line-through">49.90</span><span class="tgr">省20元</span></div><div class="flex jcb tsm tsc"><span>已售328份</span><span>库存：56份</span></div></div>
+<div class="card"><div class="fbld mb8">团长信息</div><div class="flex aic g8" onclick="navTo('leader-home')"><div class="av" style="background:var(--brand);width:40px;height:40px;font-size:16px">张</div><div><div class="fmd">张姐好物</div><div class="tsm tsc">好评率98%</div></div><span class="ar mla">&#8250;</span></div></div>
+<div style="height:80px"></div></div></div>
+<div class="bbar g8"><div onclick="navTo('cart')" style="position:relative;cursor:pointer"><svg viewBox="0 0 24 24" fill="none" stroke="#2D3436" stroke-width="2" width="26" height="26"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg><span class="badge" style="position:absolute;top:-4px;right:-8px" id="cartBadge">2</span></div><button class="btn bo f1" onclick="addToCart()">加入购物车</button><button class="btn bp f1" onclick="buyNow()">立即购买</button></div></div>
+
+<!-- ===== P0-5: 购物车 ===== -->
+<div class="page" id="page-cart"><div class="pc nt"><div class="sc">
+<div class="card"><div class="fbld mb12">张姐好物</div>
+<div class="flex aic g12 py8" style="border-bottom:1px solid #f5f5f5"><div style="width:60px;height:60px;border-radius:8px;background:linear-gradient(135deg,#FF6B6B,#FF8E8E);display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;flex-shrink:0">A</div><div class="f1"><div class="fmd">烟台红富士苹果 5斤装</div><div class="tbr fbld mt4">29.90</div></div><div class="stp"><div class="sb" onclick="updateQty(this,-1)">&minus;</div><div class="sn">2</div><div class="sb" onclick="updateQty(this,1)">+</div></div></div>
+<div class="flex aic g12 py8"><div style="width:60px;height:60px;border-radius:8px;background:linear-gradient(135deg,#4CAF50,#81C784);display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;flex-shrink:0">B</div><div class="f1"><div class="fmd">有机蔬菜拼盘 3kg</div><div class="tbr fbld mt4">35.90</div></div><div class="stp"><div class="sb" onclick="updateQty(this,-1)">&minus;</div><div class="sn">1</div><div class="sb" onclick="updateQty(this,1)">+</div></div></div></div>
+</div></div>
+<div class="bbar" style="justify-content:space-between"><div><span class="tsm tsc">合计：</span><span class="fbld" style="font-size:20px;color:var(--brand)">95.70</span></div><button class="btn bp" onclick="navTo('order-confirm')">去结算(3)</button></div></div>
+
+<!-- ===== P0-6: 下单确认 ===== -->
+<div class="page" id="page-order-confirm"><div class="pc nt"><div class="sc">
+<div class="card flex g12 aic" onclick="navTo('address-manage')"><svg viewBox="0 0 24 24" fill="none" stroke="#FF6B35" stroke-width="2" width="24" height="24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg><div class="f1"><div class="flex aic g8 mb4"><span class="fbld">张三</span><span class="tsm tsc">138****5678</span><span class="tag">默认</span></div><div class="tsm tsc">上海市浦东新区XX路XX号XX小区3栋502室</div></div><span class="ar">&#8250;</span></div>
+<div class="card"><div class="fbld mb8">商品清单</div><div class="flex jcb py8 tsm"><span>烟台红富士苹果 5斤装 x2</span><span>59.80</span></div><div class="flex jcb py8 tsm" style="border-top:1px solid #f5f5f5"><span>有机蔬菜拼盘 3kg x1</span><span>35.90</span></div><div class="flex jcb py8 fbld" style="border-top:1px solid var(--border)"><span>合计</span><span style="color:var(--brand);font-size:18px">95.70</span></div></div>
+<div class="card"><div class="fl">备注</div><input class="inp" placeholder="选填：如有特殊要求请备注"></div></div></div>
+<div class="bbar" style="justify-content:space-between"><div><span class="tsm tsc">实付：</span><span class="fbld" style="font-size:20px;color:var(--danger)">95.70</span></div><button class="btn bp" onclick="navTo('payment')">提交订单</button></div></div>
+
+<!-- ===== P0-7: 支付 ===== -->
+<div class="page" id="page-payment"><div class="pc nt"><div class="sc">
+<div class="card tc"><div class="tsm tsc mb8">支付金额</div><div style="font-size:36px;font-weight:700;color:var(--danger);margin-bottom:4px">95.70</div><div class="tsm tsc">订单号：2024061110253048</div></div>
+<div class="card"><div class="fbld mb12">选择支付方式</div><div class="flex aic g12 py8" style="cursor:pointer" onclick="showToast('微信支付已选')"><div style="width:36px;height:36px;border-radius:8px;background:#07C160;display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" width="20" height="20"><path d="M8 12h8M12 8v8"/></svg></div><div class="f1"><div class="fmd">微信支付</div></div><div style="width:20px;height:20px;border-radius:50%;border:2px solid var(--brand);display:flex;align-items:center;justify-content:center"><div style="width:10px;height:10px;border-radius:50%;background:var(--brand)"></div></div></div></div>
+<div class="cd" id="payCountdown">14:59</div>
+<button class="btn bp bb mt16" onclick="doPayment()" style="height:48px">确认支付</button></div></div></div>
+
+<!-- ===== P0-8: 门店列表 ===== -->
+<div class="page" id="page-shop-list"><div class="pc nt"><div class="sc">
+<div class="sb mb12" onclick="navTo('search')"><svg viewBox="0 0 24 24" fill="none" stroke="#B2BEC3" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span>搜索周边商家...</span></div>
+<div class="fb"><span class="fc ac" onclick="filterChip(this)">距离最近</span><span class="fc" onclick="filterChip(this)">评分最高</span><span class="fc" onclick="filterChip(this)">销量最多</span></div>
+<div class="card flex g12" style="cursor:pointer" onclick="navTo('shop-detail')"><div style="width:80px;height:80px;border-radius:var(--radius-sm);background:linear-gradient(135deg,#FF6B35,#FF8C5A);display:flex;align-items:center;justify-content:center;color:#fff;font-size:28px;font-weight:700;flex-shrink:0">幸</div><div class="f1"><div class="fbld tmd">幸福超市</div><div class="tsm tsc mt4">距离 350m | 评分 4.8</div><div class="tsm tlt mt4">上海市浦东新区XX路88号</div><div class="flex g4 mt4"><span class="tag">生鲜</span><span class="tag">日用品</span></div></div></div>
+<div class="card flex g12" style="cursor:pointer" onclick="navTo('shop-detail')"><div style="width:80px;height:80px;border-radius:var(--radius-sm);background:linear-gradient(135deg,#4CAF50,#81C784);display:flex;align-items:center;justify-content:center;color:#fff;font-size:28px;font-weight:700;flex-shrink:0">便</div><div class="f1"><div class="fbld tmd">便民水果店</div><div class="tsm tsc mt4">距离 520m | 评分 4.6</div><div class="tsm tlt mt4">上海市浦东新区XX路126号</div><div class="flex g4 mt4"><span class="tag">水果</span></div></div></div>
+<div class="card flex g12" style="cursor:pointer" onclick="navTo('shop-detail')"><div style="width:80px;height:80px;border-radius:var(--radius-sm);background:linear-gradient(135deg,#2196F3,#64B5F6);display:flex;align-items:center;justify-content:center;color:#fff;font-size:28px;font-weight:700;flex-shrink:0">社</div><div class="f1"><div class="fbld tmd">社区便利店</div><div class="tsm tsc mt4">距离 680m | 评分 4.5</div><div class="tsm tlt mt4">上海市浦东新区XX路200号</div><div class="flex g4 mt4"><span class="tag">零食</span><span class="tag">饮品</span></div></div></div>
+<div class="card flex g12" style="cursor:pointer" onclick="navTo('shop-detail')"><div style="width:80px;height:80px;border-radius:var(--radius-sm);background:linear-gradient(135deg,#E17055,#F8A5A5);display:flex;align-items:center;justify-content:center;color:#fff;font-size:28px;font-weight:700;flex-shrink:0">老</div><div class="f1"><div class="fbld tmd">老王生鲜</div><div class="tsm tsc mt4">距离 890m | 评分 4.7</div><div class="tsm tlt mt4">上海市浦东新区XX路355号</div><div class="flex g4 mt4"><span class="tag">生鲜</span><span class="tag">蔬菜</span></div></div></div>
+</div></div></div>
+
+<!-- ===== P0-9: 门店详情 ===== -->
+<div class="page" id="page-shop-detail"><div class="pc nt"><div class="sc">
+<div class="card"><div class="flex g12 mb8"><div style="width:64px;height:64px;border-radius:var(--radius-sm);background:linear-gradient(135deg,#FF6B35,#FF8C5A);display:flex;align-items:center;justify-content:center;color:#fff;font-size:28px;font-weight:700;flex-shrink:0">幸</div><div><div class="fbld tlg">幸福超市</div><div class="tsm tsc mt4">距离 350m | 评分 4.8</div><div class="tsm tlt mt4">上海市浦东新区XX路88号</div></div></div><div class="tsm tsc">营业时间：08:00-22:00</div></div>
+<div class="fb"><span class="fc ac" onclick="filterChip(this)">全部</span><span class="fc" onclick="filterChip(this)">水果</span><span class="fc" onclick="filterChip(this)">零食</span><span class="fc" onclick="filterChip(this)">日用品</span></div>
+<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
+<div class="pcrd" onclick="navTo('product-detail')"><div class="pimg" style="background:linear-gradient(135deg,#FF6B6B,#FF8E8E)">G</div><div class="pinf"><div class="pnm">进口车厘子 2斤装</div><div class="ppr">58.9<span class="ori">89.9</span></div><div class="pmt">已售86份</div></div></div>
+<div class="pcrd" onclick="navTo('product-detail')"><div class="pimg" style="background:linear-gradient(135deg,#4CAF50,#81C784)">H</div><div class="pinf"><div class="pnm">新鲜草莓 500g</div><div class="ppr">22.9<span class="ori">35.9</span></div><div class="pmt">已售124份</div></div></div>
+<div class="pcrd" onclick="navTo('product-detail')"><div class="pimg" style="background:linear-gradient(135deg,#FF9800,#FFB74D)">I</div><div class="pinf"><div class="pnm">良品铺子零食大礼包</div><div class="ppr">49.9<span class="ori">79.9</span></div><div class="pmt">已售67份</div></div></div>
+<div class="pcrd" onclick="navTo('product-detail')"><div class="pimg" style="background:linear-gradient(135deg,#9C27B0,#CE93D8)">J</div><div class="pinf"><div class="pnm">维达抽纸 24包装</div><div class="ppr">39.9<span class="ori">55.9</span></div><div class="pmt">已售198份</div></div></div>
+</div></div></div>
+<div class="bbar" style="justify-content:space-between"><span class="tsm tsc">起送20元</span><button class="btn bp" onclick="showToast('已下单，请等待接单')">去下单</button></div></div>
+
+<!-- ===== P0-10: 取货码 ===== -->
+<div class="page" id="page-pickup-code"><div class="pc nt"><div class="sc">
+<div class="card tc" style="padding:30px 16px"><div class="tsm tsc mb8">取货码</div><div style="font-size:48px;font-weight:700;color:var(--brand);letter-spacing:8px;margin-bottom:8px">5678</div><div class="tsm tsc">手机号后四位</div></div>
+<div class="card"><div class="fbld mb8">门店信息</div><div class="flex g8"><div style="width:48px;height:48px;border-radius:var(--radius-sm);background:linear-gradient(135deg,#FF6B35,#FF8C5A);display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;font-weight:700;flex-shrink:0">幸</div><div><div class="fmd">幸福超市</div><div class="tsm tsc mt4">上海市浦东新区XX路88号</div><div class="tsm tlt mt4">营业时间：08:00-22:00</div></div></div></div>
+<div class="card"><div class="fbld mb8">取货指引</div><div class="tsm tsc" style="line-height:1.8">1. 到达门店后向店员出示取货码<br>2. 店员扫码核对订单信息<br>3. 核对无误后取走商品<br>4. 如有问题可联系客服</div></div>
+<button class="btn bp bb mt16" onclick="confirmPickup()" style="height:48px">确认取货</button></div></div></div>
+
+<!-- ===== P0-11: 个人中心 ===== -->
+<div class="page" id="page-profile"><div class="pc"><div class="sc">
+<div class="card flex aic g12" onclick="navTo('user-profile')"><div class="av" style="background:var(--brand);width:56px;height:56px;font-size:24px">我</div><div class="f1"><div class="fbld tlg">我是居民</div><div class="tsm tsc mt4">ID: 20240001</div></div><span class="ar">&#8250;</span></div>
+<div class="card" style="padding:12px 16px"><div class="flex jcb aic mb12" onclick="navTo('order-list')" style="cursor:pointer"><span class="fbld">我的订单</span><span class="tsm tsc">全部订单 &#8250;</span></div>
+<div class="g4" style="margin-bottom:0">
+<div class="gi" onclick="navTo('order-list')"><div class="iw" style="background:rgba(255,107,53,0.1)"><svg viewBox="0 0 24 24" fill="none" stroke="#FF6B35" stroke-width="2"><rect x="1" y="3" width="22" height="18" rx="2"/><line x1="1" y1="9" x2="23" y2="9"/></svg></div><span class="lb">待付款</span></div>
+<div class="gi" onclick="navTo('order-list')"><div class="iw" style="background:rgba(9,132,227,0.1)"><svg viewBox="0 0 24 24" fill="none" stroke="#0984E3" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 21 13 21 21 16 21 16 8"/></svg></div><span class="lb">待收货</span></div>
+<div class="gi" onclick="navTo('order-list')"><div class="iw" style="background:rgba(0,184,148,0.1)"><svg viewBox="0 0 24 24" fill="none" stroke="#00B894" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div><span class="lb">已完成</span></div>
+<div class="gi" onclick="navTo('order-list')"><div class="iw" style="background:rgba(225,112,85,0.1)"><svg viewBox="0 0 24 24" fill="none" stroke="#E17055" stroke-width="2"><path d="M3 10h18M3 14h18M12 6v12"/></svg></div><span class="lb">退款售后</span></div>
+</div></div>
+<div class="card" style="padding:0">
+<div class="li" onclick="navTo('my-favorites')"><div class="iw" style="background:rgba(255,179,71,0.1);width:36px;height:36px"><svg viewBox="0 0 24 24" fill="none" stroke="#FFB347" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></div><div class="ct"><div class="tt">我的收藏</div></div><span class="ar">&#8250;</span></div>
+<div class="li" onclick="navTo('my-qa')"><div class="iw" style="background:rgba(9,132,227,0.1);width:36px;height:36px"><svg viewBox="0 0 24 24" fill="none" stroke="#0984E3" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><div class="ct"><div class="tt">我的问答</div></div><span class="ar">&#8250;</span></div>
+<div class="li" onclick="navTo('follow-list')"><div class="iw" style="background:rgba(0,184,148,0.1);width:36px;height:36px"><svg viewBox="0 0 24 24" fill="none" stroke="#00B894" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div class="ct"><div class="tt">关注/粉丝</div></div><span class="ar">&#8250;</span></div>
+<div class="li" onclick="navTo('address-manage')"><div class="iw" style="background:rgba(108,92,231,0.1);width:36px;height:36px"><svg viewBox="0 0 24 24" fill="none" stroke="#6C5CE7" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></div><div class="ct"><div class="tt">收货地址</div></div><span class="ar">&#8250;</span></div>
+<div class="li" onclick="navTo('withdraw')"><div class="iw" style="background:rgba(225,112,85,0.1);width:36px;height:36px"><svg viewBox="0 0 24 24" fill="none" stroke="#E17055" stroke-width="2"><rect x="1" y="1" width="22" height="22" rx="3"/><line x1="12" y1="7" x2="12" y2="17"/><polyline points="8 13 12 17 16 13"/></svg></div><div class="ct"><div class="tt">提现</div></div><span class="ar">&#8250;</span></div>
+<div class="li" onclick="navTo('apply-leader')"><div class="iw" style="background:rgba(255,107,53,0.1);width:36px;height:36px"><svg viewBox="0 0 24 24" fill="none" stroke="#FF6B35" stroke-width="2"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg></div><div class="ct"><div class="tt">申请成为团长</div></div><span class="ar">&#8250;</span></div>
+<div class="li" onclick="navTo('settings')"><div class="iw" style="background:rgba(178,190,195,0.15);width:36px;height:36px"><svg viewBox="0 0 24 24" fill="none" stroke="#636E72" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></div><div class="ct"><div class="tt">设置</div></div><span class="ar">&#8250;</span></div>
+</div></div></div></div>
+
+<!-- ===== P0-12: 订单列表 ===== -->
+<div class="page" id="page-order-list"><div class="pc nt"><div class="sc">
+<div class="ts"><div class="tsi ac" onclick="switchSubTab(this)">团购订单</div><div class="tsi" onclick="switchSubTab(this)">周边订单</div></div>
+<div class="fb"><span class="fc ac" onclick="filterChip(this)">全部</span><span class="fc" onclick="filterChip(this)">待付款</span><span class="fc" onclick="filterChip(this)">待收货</span><span class="fc" onclick="filterChip(this)">已完成</span><span class="fc" onclick="filterChip(this)">退款中</span></div>
+<div class="oc" onclick="navTo('order-detail')"><div class="oh"><span class="sn">张姐好物</span><span class="os" style="color:var(--brand)">待付款</span></div><div class="ob"><div class="tsm">烟台红富士苹果 5斤装 x2 等2件商品</div><div class="tsm tsc mt4">下单时间：2024-06-11 10:25</div><div class="fbld mt8" style="color:var(--brand)">合计：95.70</div></div><div class="of"><button class="btn bo bs" onclick="event.stopPropagation();navTo('refund-apply')">取消订单</button><button class="btn bp bs" onclick="event.stopPropagation();navTo('payment')">去付款</button></div></div>
+<div class="oc" onclick="navTo('order-detail')"><div class="oh"><span class="sn">张姐好物</span><span class="os" style="color:var(--info)">待收货</span></div><div class="ob"><div class="tsm">库尔勒香梨 3斤 x1</div><div class="tsm tsc mt4">下单时间：2024-06-10 15:30</div><div class="fbld mt8">合计：19.90</div></div><div class="of"><button class="btn bo bs" onclick="event.stopPropagation();navTo('refund-apply')">申请退款</button><button class="btn bp bs" onclick="event.stopPropagation();navTo('pickup-code')">查看取货码</button></div></div>
+<div class="oc" onclick="navTo('order-detail')"><div class="oh"><span class="sn">李明优选</span><span class="os" style="color:var(--success)">已完成</span></div><div class="ob"><div class="tsm">有机蔬菜拼盘 3kg x1</div><div class="tsm tsc mt4">下单时间：2024-06-08 09:15</div><div class="fbld mt8">合计：35.90</div></div><div class="of"><button class="btn bo bs" onclick="event.stopPropagation();navTo('review')">去评价</button><button class="btn bo bs" onclick="event.stopPropagation();navTo('leader-home')">再次购买</button></div></div>
+</div></div></div>
+
+<!-- ===== P0-13: 订单详情 ===== -->
+<div class="page" id="page-order-detail"><div class="pc nt"><div class="sc">
+<div class="card tc" style="padding:20px"><div class="tsm tsc">订单状态</div><div class="fbld tlg mt4" style="color:var(--brand)">待付款</div><div class="tsm tsc mt4">请在15分钟内完成支付</div></div>
+<div class="card"><div class="fbld mb12">订单信息</div><div class="tsm" style="line-height:2"><div class="flex jcb"><span>订单编号</span><span class="tsc">2024061110253048</span></div><div class="flex jcb"><span>下单时间</span><span class="tsc">2024-06-11 10:25</span></div></div></div>
+<div class="card"><div class="fbld mb8">商品信息</div><div class="flex g8 py8" style="border-bottom:1px solid #f5f5f5"><div style="width:50px;height:50px;border-radius:6px;background:linear-gradient(135deg,#FF6B6B,#FF8E8E);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;flex-shrink:0">A</div><div class="f1"><div class="tsm fmd">烟台红富士苹果 5斤装</div><div class="tsm tsc mt4">x2</div></div><div class="fbld">59.80</div></div><div class="flex jcb py8 fbld" style="border-top:1px solid var(--border)"><span>合计</span><span style="color:var(--brand);font-size:18px">95.70</span></div></div></div></div>
+<div class="bbar" style="justify-content:flex-end;gap:8px"><button class="btn bo bs" onclick="navTo('refund-apply')">取消订单</button><button class="btn bp bs" onclick="navTo('payment')">去付款</button></div></div>
+
+<!-- ===== P0-14: 退款申请 ===== -->
+<div class="page" id="page-refund-apply"><div class="pc nt"><div class="sc">
+<div class="card"><div class="fbld mb8">选择退款商品</div><div class="flex aic g8 py8" style="border-bottom:1px solid #f5f5f5"><div style="width:18px;height:18px;border-radius:50%;border:2px solid var(--brand);display:flex;align-items:center;justify-content:center;flex-shrink:0"><div style="width:8px;height:8px;border-radius:50%;background:var(--brand)"></div></div><div style="width:44px;height:44px;border-radius:6px;background:linear-gradient(135deg,#FF6B6B,#FF8E8E);flex-shrink:0"></div><div class="f1"><div class="tsm">烟台红富士苹果 5斤装 x2</div><div class="tbr fbld mt4">59.80</div></div></div></div>
+<div class="card"><div class="fbld mb8">退款原因</div><div class="fb fw"><span class="fc ac" onclick="filterChip(this)">不想要了</span><span class="fc" onclick="filterChip(this)">商品质量问题</span><span class="fc" onclick="filterChip(this)">发货延迟</span><span class="fc" onclick="filterChip(this)">商品与描述不符</span><span class="fc" onclick="filterChip(this)">其他</span></div></div>
+<div class="card"><div class="fbld mb8">退款金额</div><div style="font-size:24px;font-weight:700;color:var(--danger)">59.80</div><div class="tsm tsc mt4">退款将原路退回至微信支付</div></div>
+<button class="btn bp bb mt16" onclick="submitRefund()" style="height:48px">提交退款申请</button></div></div></div>
+
+<!-- ===== P0-15: 退款进度 ===== -->
+<div class="page" id="page-refund-progress"><div class="pc nt"><div class="sc">
+<div class="card tc" style="padding:24px"><div class="tsm tsc mb8">退款状态</div><div class="fbld tlg" style="color:var(--brand)">退款处理中</div><div class="tsm tsc mt4">预计1-3个工作日到账</div><div class="tsm tlt mt4">退款金额：59.80元</div></div>
+<div class="card"><div class="fbld mb12">退款进度</div><div style="position:relative;padding-left:24px"><div style="position:absolute;left:5px;top:0;bottom:0;width:2px;background:var(--border)"></div><div style="position:relative;margin-bottom:20px"><div style="position:absolute;left:-20px;top:0;width:12px;height:12px;border-radius:50%;background:var(--brand)"></div><div class="fmd tsm">提交退款申请</div><div class="tsm tlt mt4" style="font-size:11px">2024-06-11 11:30</div></div><div style="position:relative;margin-bottom:20px"><div style="position:absolute;left:-20px;top:0;width:12px;height:12px;border-radius:50%;background:var(--brand)"></div><div class="fmd tsm">商家审核通过</div><div class="tsm tlt mt4" style="font-size:11px">2024-06-11 12:05</div></div><div style="position:relative"><div style="position:absolute;left:-20px;top:0;width:12px;height:12px;border-radius:50%;background:var(--border)"></div><div class="tsm tlt">退款到账</div></div></div></div>
+</div></div></div>
+
+<!-- ===== P1-16: 团长评价 ===== -->
+<div class="page" id="page-leader-reviews"><div class="pc nt"><div class="sc">
+<div class="card flex aic g12 mb8"><div class="av" style="background:var(--brand);width:48px;height:48px">张</div><div><div class="fbld">张姐好物</div><div class="tsm tsc mt4">综合评分 4.8 | 328条评价</div></div></div>
+<div class="fb"><span class="fc ac" onclick="filterChip(this)">全部</span><span class="fc" onclick="filterChip(this)">好评(298)</span><span class="fc" onclick="filterChip(this)">中评(22)</span><span class="fc" onclick="filterChip(this)">差评(8)</span></div>
+<div class="card"><div class="flex aic g8 mb6"><div class="av" style="background:#0984E3;width:32px;height:32px;font-size:13px">李</div><div class="fmd tsm">李明</div><div class="str mla"><svg viewBox="0 0 24 24" fill="#FFB347" stroke="#FFB347" stroke-width="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24" fill="#FFB347" stroke="#FFB347" stroke-width="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24" fill="#FFB347" stroke="#FFB347" stroke-width="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24" fill="#FFB347" stroke="#FFB347" stroke-width="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24" fill="#FFB347" stroke="#FFB347" stroke-width="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div></div><div class="tsm" style="line-height:1.6">苹果很新鲜，个头也大，比超市便宜多了！团长服务好，取货方便。</div><div class="tsm tlt mt4" style="font-size:11px">2024-06-10 | 烟台红富士苹果</div></div>
+<div class="card"><div class="flex aic g8 mb6"><div class="av" style="background:#00B894;width:32px;height:32px;font-size:13px">赵</div><div class="fmd tsm">赵阿姨</div><div class="str mla"><svg viewBox="0 0 24 24" fill="#FFB347" stroke="#FFB347" stroke-width="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24" fill="#FFB347" stroke="#FFB347" stroke-width="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24" fill="#FFB347" stroke="#FFB347" stroke-width="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24" fill="#FFB347" stroke="#FFB347" stroke-width="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24" fill="#E0E0E0" stroke="#E0E0E0" stroke-width="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div></div><div class="tsm" style="line-height:1.6">蔬菜拼盘种类多，但有几片不太新鲜，联系团长补发了，整体还行。</div><div class="tsm tlt mt4" style="font-size:11px">2024-06-09 | 有机蔬菜拼盘</div></div>
+</div></div></div>
+
+<!-- ===== P1-17: 团长搜索 ===== -->
+<div class="page" id="page-leader-search"><div class="pc nt"><div style="padding:10px 16px;background:var(--white);display:flex;gap:8px;align-items:center"><div class="sb f1"><svg viewBox="0 0 24 24" fill="none" stroke="#B2BEC3" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span>搜索商品名称...</span></div><span style="color:var(--text-secondary);font-size:15px;cursor:pointer;white-space:nowrap" onclick="goBack()">取消</span></div><div class="sc"><div class="tsm tsc mb12">热门搜索</div><div class="fb fw"><span class="fc" onclick="showToast('搜索：苹果')">苹果</span><span class="fc" onclick="showToast('搜索：草莓')">草莓</span><span class="fc" onclick="showToast('搜索：蔬菜')">蔬菜</span><span class="fc" onclick="showToast('搜索：洗衣液')">洗衣液</span><span class="fc" onclick="showToast('搜索：坚果')">坚果</span></div></div></div></div>
+
+<!-- ===== P1-18: 门店筛选 ===== -->
+<div class="page" id="page-shop-filter"><div class="pc nt"><div class="sc">
+<div class="fb fw"><span class="fc ac" onclick="filterChip(this)">综合排序</span><span class="fc" onclick="filterChip(this)">销量优先</span><span class="fc" onclick="filterChip(this)">价格升序</span><span class="fc" onclick="filterChip(this)">价格降序</span></div>
+<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
+<div class="pcrd" onclick="navTo('product-detail')"><div class="pimg" style="background:linear-gradient(135deg,#FF6B6B,#FF8E8E)">G</div><div class="pinf"><div class="pnm">进口车厘子 2斤装</div><div class="ppr">58.9<span class="ori">89.9</span></div></div></div>
+<div class="pcrd" onclick="navTo('product-detail')"><div class="pimg" style="background:linear-gradient(135deg,#4CAF50,#81C784)">H</div><div class="pinf"><div class="pnm">新鲜草莓 500g</div><div class="ppr">22.9<span class="ori">35.9</span></div></div></div>
+<div class="pcrd" onclick="navTo('product-detail')"><div class="pimg" style="background:linear-gradient(135deg,#FF9800,#FFB74D)">I</div><div class="pinf"><div class="pnm">良品铺子零食礼包</div><div class="ppr">49.9<span class="ori">79.9</span></div></div></div>
+<div class="pcrd" onclick="navTo('product-detail')"><div class="pimg" style="background:linear-gradient(135deg,#9C27B0,#CE93D8)">J</div><div class="pinf"><div class="pnm">维达抽纸 24包装</div><div class="ppr">39.9<span class="ori">55.9</span></div></div></div>
+</div></div></div></div>
+
+<!-- ===== P1-19: 论坛列表 ===== -->
+<div class="page" id="page-forum-list"><div class="pc nt"><div class="sc">
+<div class="ts"><div class="tsi ac" onclick="switchSubTab(this)">推荐</div><div class="tsi" onclick="switchSubTab(this)">关注</div></div>
+<div class="fb"><span class="fc ac" onclick="filterChip(this)">全部</span><span class="fc" onclick="filterChip(this)">邻里互助</span><span class="fc" onclick="filterChip(this)">二手交易</span><span class="fc" onclick="filterChip(this)">活动通知</span><span class="fc" onclick="filterChip(this)">生活分享</span></div>
+<div class="pts" onclick="navTo('forum-detail')"><div class="ptt">转让闲置婴儿推车，九成新</div><div class="ptp">宝宝大了用不上了，买来500多，现在200转...</div><div class="ptm"><span>邻里互助</span><span>28评论 &middot; 2小时前</span></div></div>
+<div class="pts" onclick="navTo('forum-detail')"><div class="ptt">社区周末跳蚤市场活动通知</div><div class="ptp">本周六上午9点在小区广场举办跳蚤市场...</div><div class="ptm"><span>活动通知</span><span>15评论 &middot; 5小时前</span></div></div>
+<div class="pts" onclick="navTo('forum-detail')"><div class="ptt">推荐一个靠谱的家电维修师傅</div><div class="ptp">上次家里空调坏了，找了王师傅来修，价格公道...</div><div class="ptm"><span>生活分享</span><span>42评论 &middot; 1天前</span></div></div>
+<div class="pts" onclick="navTo('forum-detail')"><div class="ptt">求租小区地下停车位一个</div><div class="ptp">长租优先，价格好商量，有意者私聊...</div><div class="ptm"><span>邻里互助</span><span>8评论 &middot; 3小时前</span></div></div>
+<button class="btn bp bb mt12" onclick="navTo('forum-post')" style="display:flex;align-items:center;justify-content:center;gap:6px"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" width="18" height="18"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>发布新帖</button>
+</div></div></div>
+
+<!-- ===== P1-20: 论坛帖子详情 ===== -->
+<div class="page" id="page-forum-detail"><div class="pc nt"><div class="sc">
+<div class="card"><div class="flex aic g8 mb8" onclick="navTo('user-profile')" style="cursor:pointer"><div class="av" style="background:#0984E3;width:40px;height:40px;font-size:16px">李</div><div><div class="fmd">李明</div><div class="tsm tlt" style="font-size:11px">2小时前</div></div><span class="tag mla">邻里互助</span></div><div class="fbld tlg mb8">转让闲置婴儿推车，九成新</div><div style="line-height:1.8;font-size:15px">宝宝大了用不上了，买来500多，现在200转给有需要的邻居。推车品牌好孩子，可坐可躺，有遮阳篷，下面有储物篮。使用不到一年，保养很好。有意的邻居可以联系我看实物，小区内可送货上门。</div><div class="flex g16 mt12 tsm tlt"><span onclick="showToast('已点赞')" style="cursor:pointer">&#9825; 28</span><span style="cursor:pointer">&#9993; 15评论</span><span onclick="showToast('已收藏')" style="cursor:pointer">&#9734; 收藏</span></div></div>
+<div class="fbld mb8 mt8">评论 (15)</div>
+<div class="card"><div class="cmt"><div class="ch"><div class="ca" style="background:#00B894">赵</div><span class="cn">赵阿姨</span><span class="ctm">1小时前</span></div><div class="cb">推车还在吗？我想要，方便看下实物吗？</div><div class="cac"><span onclick="showToast('已点赞')">&#9825; 5</span><span onclick="showToast('已回复')">回复</span></div><div class="subc"><div class="cmt"><div class="ch"><div class="ca" style="background:#0984E3">李</div><span class="cn">李明（楼主）</span><span class="ctm">30分钟前</span></div><div class="cb">还在的，今天下午可以来看，我在3栋502。</div></div></div></div>
+<div class="cmt"><div class="ch"><div class="ca" style="background:#E17055">刘</div><span class="cn">社区老刘</span><span class="ctm">45分钟前</span></div><div class="cb">这个价格很实惠，好孩子品牌质量不错，帮顶！</div><div class="cac"><span onclick="showToast('已点赞')">&#9825; 3</span><span onclick="showToast('已回复')">回复</span></div></div></div>
+</div></div>
+<div class="bbar g8"><input class="inp" placeholder="发表评论..." style="flex:1"><span style="cursor:pointer;color:var(--brand);font-weight:600;font-size:15px;white-space:nowrap" onclick="showToast('评论已发送')">发送</span></div></div>
+
+<!-- ===== P1-21: 发帖 ===== -->
+<div class="page" id="page-forum-post"><div class="pc nt"><div class="sc">
+<div class="fg"><div class="fl">选择分类</div><div class="fb fw"><span class="fc ac" onclick="filterChip(this)">邻里互助</span><span class="fc" onclick="filterChip(this)">二手交易</span><span class="fc" onclick="filterChip(this)">活动通知</span><span class="fc" onclick="filterChip(this)">生活分享</span></div></div>
+<div class="fg"><div class="fl">标题</div><input class="inp" placeholder="请输入帖子标题"></div>
+<div class="fg"><div class="fl">内容</div><textarea class="ta" placeholder="请输入帖子内容..." style="min-height:160px"></textarea></div>
+<button class="btn bp bb mt16" onclick="showToast('发布成功！');navTo('forum-list')" style="height:48px">发布帖子</button>
+</div></div></div>
+
+<!-- ===== P1-22: 问答列表 ===== -->
+<div class="page" id="page-qa-list"><div class="pc nt"><div class="sc">
+<div class="fb"><span class="fc ac" onclick="filterChip(this)">全部</span><span class="fc" onclick="filterChip(this)">生活百科</span><span class="fc" onclick="filterChip(this)">健康养生</span><span class="fc" onclick="filterChip(this)">育儿教育</span><span class="fc" onclick="filterChip(this)">家居维修</span></div>
+<div class="card" style="cursor:pointer" onclick="navTo('qa-detail')"><div class="fbld tmd mb6">夏天怎么防止蚊虫叮咬？</div><div class="tsm tsc mb8" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">家里有小孩，想在阳台种些驱蚊植物...</div><div class="flex jcb tsm tlt" style="font-size:11px"><span>生活百科</span><span>12回答 &middot; 58浏览</span></div></div>
+<div class="card" style="cursor:pointer" onclick="navTo('qa-detail')"><div class="fbld tmd mb6">孩子挑食不爱吃饭怎么办？</div><div class="tsm tsc mb8" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">孩子3岁了，特别挑食，只吃白米饭和肉...</div><div class="flex jcb tsm tlt" style="font-size:11px"><span>育儿教育</span><span>8回答 &middot; 42浏览</span></div></div>
+<div class="card" style="cursor:pointer" onclick="navTo('qa-detail')"><div class="fbld tmd mb6">马桶漏水怎么自己修？</div><div class="tsm tsc mb8" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">马桶水箱一直有水流声，水费暴涨...</div><div class="flex jcb tsm tlt" style="font-size:11px"><span>家居维修</span><span>5回答 &middot; 36浏览</span></div></div>
+<button class="btn bp bb mt12" onclick="navTo('qa-ask')" style="display:flex;align-items:center;justify-content:center;gap:6px"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" width="18" height="18"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>我要提问</button>
+</div></div></div>
+
+<!-- ===== P1-23: 问答详情 ===== -->
+<div class="page" id="page-qa-detail"><div class="pc nt"><div class="sc">
+<div class="card"><div class="flex aic g8 mb8"><div class="av" style="background:var(--brand);width:40px;height:40px;font-size:16px">我</div><div><div class="fmd">我是居民</div><div class="tsm tlt" style="font-size:11px">2天前</div></div><span class="tag mla">生活百科</span></div><div class="fbld tlg mb8">夏天怎么防止蚊虫叮咬？</div><div style="line-height:1.8;font-size:15px">夏天到了，家里蚊子特别多，家里有小孩不敢用蚊香和电蚊香液。想问问大家有没有安全有效的驱蚊方法？比如在阳台种什么植物可以驱蚊？</div></div>
+<div class="fbld mb8 mt8">回答 (12)</div>
+<div class="card"><div class="cmt"><div class="ch"><div class="ca" style="background:#0984E3">李</div><span class="cn">李明</span><span class="ctm">1天前</span></div><div class="cb">可以在阳台种薄荷、薰衣草、迷迭香，这些植物都有驱蚊效果。另外建议安装纱窗，物理防蚊最安全。如果已经被咬了，可以用肥皂水清洗止痒。</div><div class="cac"><span onclick="showToast('已点赞')">&#9825; 8</span><span onclick="showToast('已打赏')">&#9733; 打赏</span></div></div>
+<div class="cmt"><div class="ch"><div class="ca" style="background:#00B894">赵</div><span class="cn">赵阿姨</span><span class="ctm">20小时前</span></div><div class="cb">推荐用婴儿专用的驱蚊贴，贴在衣服上就行，安全无毒。我孙子一直用这个，效果挺好的。</div><div class="cac"><span onclick="showToast('已点赞')">&#9825; 5</span><span onclick="showToast('已打赏')">&#9733; 打赏</span></div></div></div>
+</div></div>
+<div class="bbar tc"><button class="btn bp bb" onclick="navTo('qa-answer')">写回答</button></div></div>
+
+<!-- ===== P1-24: 写回答 ===== -->
+<div class="page" id="page-qa-answer"><div class="pc nt"><div class="sc">
+<div class="card mb12"><div class="fbld mb6">问题</div><div class="tsm tsc">夏天怎么防止蚊虫叮咬？</div></div>
+<div class="fg"><div class="fl">你的回答</div><textarea class="ta" placeholder="分享你的知识和经验..." style="min-height:160px"></textarea></div>
+<button class="btn bp bb mt16" onclick="showToast('回答已发布！');goBack()" style="height:48px">发布回答</button>
+</div></div></div>
+
+<!-- ===== P1-25: 提问 ===== -->
+<div class="page" id="page-qa-ask"><div class="pc nt"><div class="sc">
+<div class="fg"><div class="fl">选择分类</div><div class="fb fw"><span class="fc ac" onclick="filterChip(this)">生活百科</span><span class="fc" onclick="filterChip(this)">健康养生</span><span class="fc" onclick="filterChip(this)">育儿教育</span><span class="fc" onclick="filterChip(this)">家居维修</span></div></div>
+<div class="fg"><div class="fl">问题标题</div><input class="inp" placeholder="请输入问题标题"></div>
+<div class="fg"><div class="fl">问题描述</div><textarea class="ta" placeholder="详细描述你的问题..."></textarea></div>
+<button class="btn bp bb mt16" onclick="showToast('问题已发布！');navTo('qa-list')" style="height:48px">发布问题</button>
+</div></div></div>
+
+<!-- ===== P1-26: 我的收藏 ===== -->
+<div class="page" id="page-my-favorites"><div class="pc nt"><div class="sc">
+<div class="ts"><div class="tsi ac" onclick="switchSubTab(this)">收藏商品</div><div class="tsi" onclick="switchSubTab(this)">收藏帖子</div></div>
+<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
+<div class="pcrd" onclick="navTo('product-detail')"><div class="pimg" style="background:linear-gradient(135deg,#FF6B6B,#FF8E8E)">A</div><div class="pinf"><div class="pnm">烟台红富士苹果</div><div class="ppr">29.9<span class="ori">49.9</span></div></div></div>
+<div class="pcrd" onclick="navTo('product-detail')"><div class="pimg" style="background:linear-gradient(135deg,#2196F3,#64B5F6)">E</div><div class="pinf"><div class="pnm">蓝月亮洗衣液</div><div class="ppr">39.9<span class="ori">59.9</span></div></div></div>
+</div></div></div></div>
+
+<!-- ===== P1-27: 我的问答 ===== -->
+<div class="page" id="page-my-qa"><div class="pc nt"><div class="sc">
+<div class="card" onclick="navTo('qa-detail')" style="cursor:pointer"><div class="fbld tmd mb6">夏天怎么防止蚊虫叮咬？</div><div class="flex jcb tsm tlt" style="font-size:11px"><span>生活百科 &middot; 2天前</span><span>12回答</span></div></div>
+<div class="card" onclick="navTo('qa-detail')" style="cursor:pointer"><div class="fbld tmd mb6">小区附近有好的宠物医院推荐吗？</div><div class="flex jcb tsm tlt" style="font-size:11px"><span>生活百科 &middot; 5天前</span><span>3回答</span></div></div>
+</div></div></div>
+
+<!-- ===== P1-28: 地址管理 ===== -->
+<div class="page" id="page-address-manage"><div class="pc nt"><div class="sc">
+<div class="card"><div class="flex aic g8 mb4"><div style="width:18px;height:18px;border-radius:50%;border:2px solid var(--brand);display:flex;align-items:center;justify-content:center;flex-shrink:0"><div style="width:8px;height:8px;border-radius:50%;background:var(--brand)"></div></div><span class="fbld">张三</span><span class="tsm tsc">138****5678</span><span class="tag mla">默认</span></div><div class="tsm tsc" style="margin-left:26px">上海市浦东新区XX路XX号XX小区3栋502室</div><div class="flex g8 mt8" style="margin-left:26px"><span class="tsm tbr" style="cursor:pointer" onclick="showToast('编辑地址')">编辑</span><span class="tsm tlt" style="cursor:pointer" onclick="showToast('删除地址')">删除</span></div></div>
+<div class="card"><div class="flex aic g8 mb4"><div style="width:18px;height:18px;border-radius:50%;border:2px solid var(--border);flex-shrink:0"></div><span class="fbld">张三</span><span class="tsm tsc">139****8888</span></div><div class="tsm tsc" style="margin-left:26px">上海市浦东新区YY路66号YY大厦12层</div><div class="flex g8 mt8" style="margin-left:26px"><span class="tsm tbr" style="cursor:pointer" onclick="showToast('编辑地址')">编辑</span><span class="tsm tlt" style="cursor:pointer" onclick="showToast('删除地址')">删除</span></div></div>
+<button class="btn bo bb mt8" onclick="showToast('新增地址')">+ 新增收货地址</button>
+</div></div></div>
+
+<!-- ===== P1-29: 消息通知 ===== -->
+<div class="page" id="page-notifications"><div class="pc nt"><div class="sc">
+<div class="ts"><div class="tsi ac" onclick="switchSubTab(this)">全部</div><div class="tsi" onclick="switchSubTab(this)">系统通知</div><div class="tsi" onclick="switchSubTab(this)">订单消息</div></div>
+<div class="ni" onclick="showToast('已读')"><div class="nd"></div><div class="nc"><div class="nt">订单已发货</div><div class="ns">您的订单2024061110253048已发货，请注意查收</div><div class="ntm">10分钟前</div></div></div>
+<div class="ni rd"><div class="nd"></div><div class="nc"><div class="nt">社区团购新上线</div><div class="ns">社区团购功能正式上线，新鲜水果低至5折！</div><div class="ntm">1天前</div></div></div>
+<div class="ni rd"><div class="nd"></div><div class="nc"><div class="nt">退款申请已通过</div><div class="ns">您的退款申请已通过审核，金额将退回原支付账户</div><div class="ntm">3天前</div></div></div>
+</div></div></div>
+
+<!-- ===== Community Tab Page ===== -->
+<div class="page" id="page-community"><div class="pc"><div class="sc">
+<div class="ts"><div class="tsi ac" onclick="switchSubTab(this)">论坛</div><div class="tsi" onclick="switchSubTab(this)">问答</div></div>
+<div id="comm-forum" style="display:block">
+<div class="pts" onclick="navTo('forum-detail')"><div class="ptt">转让闲置婴儿推车，九成新</div><div class="ptp">宝宝大了用不上了，买来500多，现在200转...</div><div class="ptm"><span>邻里互助</span><span>28评论 &middot; 2小时前</span></div></div>
+<div class="pts" onclick="navTo('forum-detail')"><div class="ptt">社区周末跳蚤市场活动通知</div><div class="ptp">本周六上午9点在小区广场举办跳蚤市场...</div><div class="ptm"><span>活动通知</span><span>15评论 &middot; 5小时前</span></div></div>
+<div class="pts" onclick="navTo('forum-detail')"><div class="ptt">推荐一个靠谱的家电维修师傅</div><div class="ptp">上次家里空调坏了，找了王师傅来修，价格公道手艺好...</div><div class="ptm"><span>生活分享</span><span>42评论 &middot; 1天前</span></div></div>
+<div class="pts" onclick="navTo('forum-detail')"><div class="ptt">求租小区地下停车位一个</div><div class="ptp">长租优先，价格好商量，有意者私聊...</div><div class="ptm"><span>邻里互助</span><span>8评论 &middot; 3小时前</span></div></div>
+<button class="btn bp bb mt12" onclick="navTo('forum-post')" style="display:flex;align-items:center;justify-content:center;gap:6px"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" width="18" height="18"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>发布新帖</button>
+</div>
+<div id="comm-qa" style="display:none">
+<div class="fb"><span class="fc ac" onclick="filterChip(this)">全部</span><span class="fc" onclick="filterChip(this)">生活百科</span><span class="fc" onclick="filterChip(this)">健康养生</span><span class="fc" onclick="filterChip(this)">育儿教育</span><span class="fc" onclick="filterChip(this)">家居维修</span></div>
+<div class="card" style="cursor:pointer" onclick="navTo('qa-detail')"><div class="fbld tmd mb6">夏天怎么防止蚊虫叮咬？</div><div class="tsm tsc mb8" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">家里有小孩，想在阳台种些驱蚊植物...</div><div class="flex jcb tsm tlt" style="font-size:11px"><span>生活百科</span><span>12回答 &middot; 58浏览</span></div></div>
+<div class="card" style="cursor:pointer" onclick="navTo('qa-detail')"><div class="fbld tmd mb6">孩子挑食不爱吃饭怎么办？</div><div class="tsm tsc mb8" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">孩子3岁了，特别挑食...</div><div class="flex jcb tsm tlt" style="font-size:11px"><span>育儿教育</span><span>8回答 &middot; 42浏览</span></div></div>
+<div class="card" style="cursor:pointer" onclick="navTo('qa-detail')"><div class="fbld tmd mb6">马桶漏水怎么自己修？</div><div class="tsm tsc mb8" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">马桶水箱一直有水流声...</div><div class="flex jcb tsm tlt" style="font-size:11px"><span>家居维修</span><span>5回答 &middot; 36浏览</span></div></div>
+<button class="btn bp bb mt12" onclick="navTo('qa-ask')" style="display:flex;align-items:center;justify-content:center;gap:6px"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" width="18" height="18"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>我要提问</button>
+</div>
+</div></div></div>
+
+<!-- ===== P2-30: 他人主页 ===== -->
+<div class="page" id="page-user-profile"><div class="pc nt"><div class="sc">
+<div class="card flex aic g12"><div class="av" style="background:#0984E3;width:56px;height:56px;font-size:24px">李</div><div class="f1"><div class="fbld tlg">李明</div><div class="tsm tsc mt4">ID: 20240002 | 已加入社区180天</div></div><button class="btn bo bs" onclick="showToast('已关注')">+ 关注</button></div>
+<div class="flex g4 tc" style="margin-bottom:12px"><div class="card f1" style="padding:12px"><div class="txl fbld">128</div><div class="tsm tlt mt4">关注</div></div><div class="card f1" style="padding:12px"><div class="txl fbld">56</div><div class="tsm tlt mt4">粉丝</div></div><div class="card f1" style="padding:12px"><div class="txl fbld">32</div><div class="tsm tlt mt4">帖子</div></div></div>
+<div class="fb"><span class="fc ac" onclick="filterChip(this)">Ta的帖子</span><span class="fc" onclick="filterChip(this)">Ta的回答</span></div>
+<div class="pts"><div class="ptt">转让闲置婴儿推车，九成新</div><div class="ptp">宝宝大了用不上了...</div><div class="ptm"><span>邻里互助</span><span>28评论 &middot; 2小时前</span></div></div>
+</div></div></div>
+
+<!-- ===== P2-31: 关注/粉丝列表 ===== -->
+<div class="page" id="page-follow-list"><div class="pc nt"><div class="sc">
+<div class="ts"><div class="tsi ac" onclick="switchSubTab(this)">关注 128</div><div class="tsi" onclick="switchSubTab(this)">粉丝 56</div></div>
+<div class="li" onclick="navTo('user-profile')"><div class="av" style="background:#0984E3">李</div><div class="ct"><div class="tt">李明</div><div class="su">已关注 | 32篇帖子</div></div><button class="btn bo bs" onclick="event.stopPropagation();showToast('已取消关注')">已关注</button></div>
+<div class="li" onclick="navTo('user-profile')"><div class="av" style="background:#00B894">赵</div><div class="ct"><div class="tt">赵阿姨</div><div class="su">已关注 | 15篇帖子</div></div><button class="btn bo bs" onclick="event.stopPropagation();showToast('已取消关注')">已关注</button></div>
+<div class="li" onclick="navTo('user-profile')"><div class="av" style="background:#E17055">刘</div><div class="ct"><div class="tt">社区老刘</div><div class="su">已关注 | 28篇帖子</div></div><button class="btn bo bs" onclick="event.stopPropagation();showToast('已取消关注')">已关注</button></div>
+</div></div></div>
+
+<!-- ===== P2-32: 申请团长 ===== -->
+<div class="page" id="page-apply-leader"><div class="pc nt"><div class="sc">
+<div class="card tc" style="padding:24px"><div style="width:64px;height:64px;border-radius:50%;background:rgba(255,107,53,0.12);display:flex;align-items:center;justify-content:center;margin:0 auto 12px"><svg viewBox="0 0 24 24" fill="none" stroke="#FF6B35" stroke-width="2" width="32" height="32"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg></div><div class="fbld tlg mb4">申请成为团长</div><div class="tsm tsc">成为团长后可以发起团购，服务社区居民</div></div>
+<div class="fg"><div class="fl">真实姓名</div><input class="inp" placeholder="请输入真实姓名"></div>
+<div class="fg"><div class="fl">联系电话</div><input class="inp" placeholder="请输入联系电话"></div>
+<div class="fg"><div class="fl">所在楼栋</div><input class="inp" placeholder="请输入所在楼栋号"></div>
+<div class="fg"><div class="fl">申请说明</div><textarea class="ta" placeholder="请简要说明您的优势和计划..."></textarea></div>
+<button class="btn bp bb mt16" onclick="showToast('申请已提交，等待审核')" style="height:48px">提交申请</button>
+</div></div></div>
+
+<!-- ===== P2-33: 提现 ===== -->
+<div class="page" id="page-withdraw"><div class="pc nt"><div class="sc">
+<div class="card tc" style="padding:24px"><div class="tsm tsc mb8">可提现金额</div><div class="txl fbld" style="color:var(--brand)">128.50</div><div class="tsm tlt mt4">累计收入：356.80元</div></div>
+<div class="fg"><div class="fl">提现金额</div><input class="inp" placeholder="请输入提现金额" value="100"></div>
+<div class="card"><div class="fbld mb8">提现到</div><div class="flex aic g12"><div style="width:36px;height:36px;border-radius:8px;background:#07C160;display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" width="18" height="18"><path d="M8 12h8M12 8v8"/></svg></div><div><div class="fmd">微信零钱</div><div class="tsm tlt mt4">预计1-2个工作日到账</div></div></div></div>
+<button class="btn bp bb mt16" onclick="showModal('确认提现','确定提现 100.00 元到微信零钱？',function(){showToast('提现申请已提交')})" style="height:48px">确认提现</button>
+</div></div></div>
+
+<!-- ===== P2-34: 评价 ===== -->
+<div class="page" id="page-review"><div class="pc nt"><div class="sc">
+<div class="card tc mb8"><div class="tsm tsc mb8">商品评分</div><div class="str" style="justify-content:center"><svg viewBox="0 0 24 24" fill="#FFB347" stroke="#FFB347" stroke-width="1" width="32" height="32" onclick="showToast('已评分')"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24" fill="#FFB347" stroke="#FFB347" stroke-width="1" width="32" height="32" onclick="showToast('已评分')"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24" fill="#FFB347" stroke="#FFB347" stroke-width="1" width="32" height="32" onclick="showToast('已评分')"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24" fill="#FFB347" stroke="#FFB347" stroke-width="1" width="32" height="32" onclick="showToast('已评分')"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24" fill="#E0E0E0" stroke="#E0E0E0" stroke-width="1" width="32" height="32" onclick="showToast('已评分')"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div></div>
+<div class="fg"><div class="fl">评价内容</div><textarea class="ta" placeholder="分享你的购物体验..."></textarea></div>
+<div class="fg"><div class="fl">上传图片（选填）</div><div style="width:80px;height:80px;border:1px dashed var(--border);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;cursor:pointer" onclick="showToast('选择图片')"><svg viewBox="0 0 24 24" fill="none" stroke="#B2BEC3" stroke-width="2" width="24" height="24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div>
+<button class="btn bp bb mt16" onclick="showToast('评价已发布！')" style="height:48px">发布评价</button>
+</div></div></div>
+
+<!-- ===== P2-35: 设置 ===== -->
+<div class="page" id="page-settings"><div class="pc nt"><div class="sc">
+<div class="card" style="padding:0">
+<div class="li" onclick="showToast('修改个人信息')"><div class="ct"><div class="tt">个人信息</div></div><span class="ar">&#8250;</span></div>
+<div class="li" onclick="showToast('账号安全设置')"><div class="ct"><div class="tt">账号安全</div></div><span class="ar">&#8250;</span></div>
+<div class="li" onclick="showToast('隐私设置')"><div class="ct"><div class="tt">隐私设置</div></div><span class="ar">&#8250;</span></div>
+<div class="li" onclick="showToast('消息通知设置')"><div class="ct"><div class="tt">消息通知</div></div><span class="ar">&#8250;</span></div>
+<div class="li" onclick="showToast('清除缓存')"><div class="ct"><div class="tt">清除缓存</div><div class="su">当前缓存 12.5MB</div></div><span class="ar">&#8250;</span></div>
+<div class="li" onclick="navTo('about')"><div class="ct"><div class="tt">关于我们</div></div><span class="ar">&#8250;</span></div>
+</div>
+<button class="btn bo bb mt20" onclick="showModal('退出登录','确定要退出当前账号吗？',function(){showToast('已退出登录');})" style="color:var(--danger);border-color:var(--danger)">退出登录</button>
+</div></div></div>
+
+<!-- ===== P2-36: 全局搜索 ===== -->
+<div class="page" id="page-search"><div class="pc nt"><div style="padding:10px 16px;background:var(--white);display:flex;gap:8px;align-items:center"><div class="sb f1"><svg viewBox="0 0 24 24" fill="none" stroke="#B2BEC3" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span>搜索团长、商品、帖子...</span></div><span style="color:var(--text-secondary);font-size:15px;cursor:pointer;white-space:nowrap" onclick="goBack()">取消</span></div><div class="sc"><div class="tsm tsc mb12">热门搜索</div><div class="fb fw"><span class="fc" onclick="showToast('搜索：苹果')">苹果</span><span class="fc" onclick="showToast('搜索：草莓')">草莓</span><span class="fc" onclick="showToast('搜索：团长')">团长</span><span class="fc" onclick="showToast('搜索：车位')">车位</span><span class="fc" onclick="showToast('搜索：维修')">维修</span></div><div class="tsm tsc mt16 mb12">搜索历史</div><div class="tsm tlt">暂无搜索历史</div></div></div></div>
+
+<!-- ===== P3-37: 关于我们（骨架） ===== -->
+<div class="page" id="page-about"><div class="pc nt"><div class="sc"><div class="empty"><div class="ei">&#9432;</div><div class="et">页面正在建设中，即将上线</div></div></div></div></div>
+
+<!-- ===== P3-38: 联系客服（骨架） ===== -->
+<div class="page" id="page-contact"><div class="pc nt"><div class="sc"><div class="empty"><div class="ei">&#9742;</div><div class="et">页面正在建设中，即将上线</div></div></div></div></div>
+
+<div class="tab-bar" id="tabBar"><div class="tab-item active" onclick="switchTab(0)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span class="tab-label">首页</span></div><div class="tab-item" onclick="switchTab(1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg><span class="tab-label">周边商家</span></div><div class="tab-item" onclick="switchTab(2)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span class="tab-label">社区</span></div><div class="tab-item" onclick="switchTab(3)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-8 8-8s8 4 8 8"/></svg><span class="tab-label">我的</span></div></div>
+<div class="toast" id="toast"></div>
+<div class="modal-overlay" id="modalOverlay"><div class="modal"><div class="mb"><div class="mt" id="modalTitle"></div><div class="md" id="modalDesc"></div></div><div class="ma"><div class="mbtn" onclick="hideModal()">取消</div><div class="mbtn pr" id="modalConfirm" onclick="hideModal()">确认</div></div></div></div>
+<script>
+var navHistory=[{page:'home',title:'',tab:0}];
+var pageTitles={
+  'home':'首页','login':'微信登录','leader-home':'团长主页','product-detail':'商品详情','cart':'购物车',
+  'order-confirm':'确认订单','payment':'确认支付','shop-list':'周边商家','shop-detail':'门店详情',
+  'pickup-code':'取货码','profile':'个人中心','order-list':'我的订单','order-detail':'订单详情',
+  'refund-apply':'申请退款','refund-progress':'退款进度','leader-reviews':'团长评价','leader-search':'搜索商品',
+  'shop-filter':'商品筛选','forum-list':'论坛','forum-detail':'帖子详情','forum-post':'发布帖子',
+  'qa-list':'知识问答','qa-detail':'问题详情','qa-answer':'写回答','qa-ask':'我要提问',
+  'my-favorites':'我的收藏','my-qa':'我的问答','address-manage':'收货地址','notifications':'消息通知',
+  'user-profile':'个人主页','follow-list':'关注/粉丝','apply-leader':'申请团长','withdraw':'提现',
+  'review':'评价','settings':'设置','search':'全局搜索','about':'关于我们','contact':'联系客服','community':'社区'
+};
+var tabPages={0:'page-home',1:'page-shop-list',2:'page-community',3:'page-profile'};
+var currentTab=0,payTimer=null,paySeconds=899,bannerTimer=null;
+
+function navTo(pageId,params){
+  if(!pageId)return;
+  var pageEl=document.getElementById('page-'+pageId);
+  if(!pageEl){
+    showToast('页面正在建设中，即将上线');
+    return;
+  }
+  hideAllPages();
+  pageEl.classList.add('active');
+  document.getElementById('navBar').style.display='block';
+  document.getElementById('navTitle').textContent=pageTitles[pageId]||'';
+  navHistory.push({page:pageId,title:pageTitles[pageId]||'',tab:currentTab});
+  if(pageId==='login')document.getElementById('navBar').style.display='none';
+  if(pageId==='payment')startPayCountdown();
+  if(params)console.log('Nav params:',params);
+}
+
+function goBack(){
+  if(navHistory.length<=1)return;
+  navHistory.pop();
+  var prev=navHistory[navHistory.length-1];
+  if(prev.tab!==currentTab){
+    var tabKeys=Object.keys(tabPages);
+    currentTab=prev.tab;
+    hideAllPages();
+    document.getElementById(tabPages[currentTab]).classList.add('active');
+    updateTabBar();
+    document.getElementById('navBar').style.display='none';
+  }else{
+    hideAllPages();
+    var el=document.getElementById('page-'+prev.page);
+    if(!el){el=document.getElementById(tabPages[currentTab]);document.getElementById('navBar').style.display='none';}
+    else{document.getElementById('navBar').style.display='block';document.getElementById('navTitle').textContent=prev.title;}
+    el.classList.add('active');
+    if(prev.page==='login')document.getElementById('navBar').style.display='none';
+  }
+  if(payTimer){clearInterval(payTimer);payTimer=null;}
+}
+
+function hideAllPages(){
+  var pages=document.querySelectorAll('.page');
+  for(var i=0;i<pages.length;i++)pages[i].classList.remove('active');
+}
+
+function updateTabBar(){
+  var items=document.querySelectorAll('.tab-item');
+  for(var i=0;i<items.length;i++)items[i].classList.toggle('active',i===currentTab);
+}
+
+function switchTab(idx){
+  currentTab=idx;
+  hideAllPages();
+  document.getElementById(tabPages[idx]).classList.add('active');
+  updateTabBar();
+  document.getElementById('navBar').style.display='none';
+  navHistory=[{page:Object.keys(tabPages).find(function(k){return tabPages[k]===tabPages[idx]}),title:'',tab:idx}];
+}
+
+function showToast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show')},2000);
+}
+
+function showModal(title,desc,onConfirm){
+  document.getElementById('modalTitle').textContent=title;
+  document.getElementById('modalDesc').textContent=desc;
+  document.getElementById('modalOverlay').classList.add('show');
+  document.getElementById('modalConfirm').onclick=function(){hideModal();if(onConfirm)onConfirm();};
+}
+
+function hideModal(){document.getElementById('modalOverlay').classList.remove('show');}
+
+function doLogin(){
+  showToast('登录成功！');
+  navHistory=[{page:'home',title:'',tab:0}];
+  currentTab=0;
+  hideAllPages();
+  document.getElementById('page-home').classList.add('active');
+  updateTabBar();
+  document.getElementById('navBar').style.display='none';
+}
+
+function addToCart(){showToast('已加入购物车');document.getElementById('cartBadge').textContent='3';}
+function buyNow(){navTo('order-confirm');}
+function doPayment(){
+  showModal('确认支付','确定要支付 95.70 元吗？',function(){
+    showToast('支付成功！');navTo('pickup-code');
+  });
+}
+function confirmPickup(){
+  showModal('确认取货','确认已收到商品？',function(){showToast('取货成功！订单已完成');navTo('order-list');});
+}
+function submitRefund(){
+  showModal('确认退款','确认提交退款申请？退款金额 59.80元将原路退回。',function(){showToast('退款申请已提交');navTo('refund-progress');});
+}
+
+function startPayCountdown(){
+  if(payTimer){clearInterval(payTimer);payTimer=null;}
+  paySeconds=899;
+  updateCountdown();
+  payTimer=setInterval(function(){
+    paySeconds--;
+    updateCountdown();
+    if(paySeconds<=0){clearInterval(payTimer);payTimer=null;showToast('支付超时，请重新下单');}
+  },1000);
+}
+
+function updateCountdown(){
+  var el=document.getElementById('payCountdown');
+  if(!el)return;
+  var m=Math.floor(paySeconds/60),s=paySeconds%60;
+  el.textContent=(m<10?'0'+m:m)+':'+(s<10?'0'+s:s);
+}
+
+function filterChip(el){
+  var parent=el.parentElement;
+  var chips=parent.querySelectorAll('.fc');
+  for(var i=0;i<chips.length;i++)chips[i].classList.remove('ac');
+  el.classList.add('ac');
+}
+
+function switchSubTab(el){
+  var parent=el.parentElement;
+  var items=parent.querySelectorAll('.tsi');
+  for(var i=0;i<items.length;i++)items[i].classList.remove('ac');
+  el.classList.add('ac');
+}
+
+function switchOrderTab(idx,el){
+  switchSubTab(el);
+}
+
+function updateQty(el,delta){
+  var stepper=el.parentElement;
+  var numEl=stepper.querySelector('.sn');
+  var v=parseInt(numEl.textContent)+delta;
+  if(v<1)v=1;if(v>99)v=99;
+  numEl.textContent=v;
+}
+
+// Banner auto-rotate
+function initBanner(){
+  var banner=document.getElementById('hb');
+  if(!banner)return;
+  var slides=banner.querySelectorAll('.bsl');
+  var dots=banner.querySelectorAll('.bdt');
+  var idx=0;
+  bannerTimer=setInterval(function(){
+    slides[idx].classList.remove('ac');dots[idx].classList.remove('ac');
+    idx=(idx+1)%slides.length;
+    slides[idx].classList.add('ac');dots[idx].classList.add('ac');
+  },3000);
+}
+
+// Init
+document.addEventListener('DOMContentLoaded',function(){
+  initBanner();
+  // Community tab switch
+  var commTabs=document.querySelectorAll('#page-community .tsi');
+  for(var i=0;i<commTabs.length;i++){
+    commTabs[i].addEventListener('click',function(){
+      var t=this;
+      var parent=t.parentElement;
+      var items=parent.querySelectorAll('.tsi');
+      for(var j=0;j<items.length;j++)items[j].classList.remove('ac');
+      t.classList.add('ac');
+      var idx=Array.prototype.indexOf.call(items,t);
+      var panels=[document.getElementById('comm-forum'),document.getElementById('comm-qa')];
+      for(var k=0;k<panels.length;k++){
+        if(panels[k])panels[k].style.display=k===idx?'block':'none';
+      }
+    });
+  }
+});
+
+</script>
+</div>
+</body>
+</html>
