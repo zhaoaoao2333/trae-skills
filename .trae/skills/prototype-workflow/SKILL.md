@@ -39,7 +39,7 @@ description: "从需求到原型的完整工作流，分七阶段执行：项目
 
 - **阶段三（需求梳理）和阶段四（功能细化）**：自动调用 `requirement-analysis` 技能
 - **阶段五（PRD 产出）**：加载 `references/prd-rules.md`
-- **阶段六（原型生成）**：加载 `references/prototype-rules.md`
+- **阶段六（原型生成）**：加载 `references/prototype-rules.md`（全行业通用规范）+ `references/industry-rules.md`（行业特定规范，根据项目类型加载对应章节）
 - **全局适用**：加载 `references/priority-rules.md`、`references/project-rules.md`
 
 ---
@@ -141,7 +141,7 @@ AI 根据以下规则自动填充未确认的细节：
 
 | 维度 | 填入规则 |
 |------|---------|
-| 功能模块 | 按行业标准模块清单补齐（详见 `references/prototype-rules.md` 行业自动补齐表） |
+| 功能模块 | 按行业标准模块清单补齐（详见 `references/industry-rules.md` 对应行业章节） |
 | 业务规则 | 按行业通用惯例（如：电商→30分钟未支付自动取消） |
 | 数据逻辑 | 按常识推导（如：支付后生成订单号，格式 YYYYMMDD+随机数） |
 | 权限控制 | 按角色默认权限（如：普通用户只能看自己的订单） |
