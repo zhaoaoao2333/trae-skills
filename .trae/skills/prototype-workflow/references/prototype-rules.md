@@ -353,24 +353,63 @@
 
 ### 颜色体系（CSS变量形式）
 
-生成HTML时必须定义CSS变量：
+生成HTML时必须定义CSS变量。所有组件库和行业模板统一使用以下变量名：
+
 ```css
 :root {
+  /* 品牌色 */
   --color-primary: #品牌主色;
   --color-primary-light: #主色浅色;
   --color-primary-dark: #主色深色;
-  --color-text-primary: #1a1a1a;
-  --color-text-secondary: #666666;
-  --color-text-placeholder: #999999;
-  --color-bg-page: #f5f5f5;
-  --color-bg-card: #ffffff;
-  --color-border: #e8e8e8;
-  --color-divider: #f0f0f0;
+  
+  /* 功能色 */
   --color-success: #52c41a;
   --color-warning: #faad14;
   --color-error: #ff4d4f;
+  
+  /* 文字色 */
+  --color-text-primary: #333333;    /* 标题、正文 */
+  --color-text-secondary: #666666;  /* 描述、次要信息 */
+  --color-text-tertiary: #999999;   /* 辅助信息、时间戳、占位符 */
+  
+  /* 背景色 */
+  --color-bg-primary: #ffffff;      /* 卡片、内容区背景 */
+  --color-bg-secondary: #f5f5f5;    /* 页面背景 */
+  --color-bg-tertiary: #f0f0f0;     /* 骨架屏、禁用态背景 */
+  
+  /* 边框与分割 */
+  --color-border: #e5e5e5;          /* 边框 */
+  --color-divider: #f0f0f0;         /* 分割线 */
+  
+  /* 字体 */
+  --font-h1: 20px;        /* 页面大标题 */
+  --font-h2: 16px;        /* 模块标题 */
+  --font-title: 16px;     /* 卡片标题、价格 */
+  --font-body: 14px;      /* 正文内容 */
+  --font-caption: 12px;   /* 辅助信息、标签 */
+  
+  /* 间距（基于8px网格） */
+  --spacing-page: 16px;     /* 页面边距 */
+  --spacing-module: 16px;   /* 模块间距 */
+  --spacing-card: 12px;     /* 卡片内边距 */
+  --spacing-element: 8px;   /* 元素间间距 */
+  --spacing-compact: 4px;   /* 紧凑间距 */
+  
+  /* 圆角 */
+  --radius-card: 12px;      /* 卡片、图片 */
+  --radius-button: 6px;     /* 按钮 */
+  --radius-input: 8px;      /* 输入框 */
+  --radius-modal: 16px;     /* 弹窗 */
 }
 ```
+
+**变量命名规则**：
+- 颜色：`--color-{角色}-{层级}`，如 `--color-text-primary`
+- 字体：`--font-{层级}`，如 `--font-body`
+- 间距：`--spacing-{场景}`，如 `--spacing-page`
+- 圆角：`--radius-{组件}`，如 `--radius-card`
+
+**禁止**：同一概念使用不同变量名（如 `--color-bg-page` 和 `--color-bg-secondary` 混用）。所有文件必须使用上述统一变量名。
 
 ---
 

@@ -98,10 +98,11 @@
   height: 56px;
   background: var(--color-bg-primary);
   border-top: 1px solid var(--color-border);
-  position: fixed;
+  position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
+  z-index: 1000;
 }
 .tab-item {
   display: flex;
@@ -341,7 +342,7 @@
 
 ```css
 .modal-overlay {
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
   right: 0;
@@ -350,7 +351,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 2000;
 }
 .modal-box {
   width: 300px;
@@ -397,16 +398,16 @@
 
 ```css
 .modal-bottom {
-  position: fixed;
+  position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
   background: var(--color-bg-primary);
   border-radius: var(--radius-modal) var(--radius-modal) 0 0;
-  max-height: 70vh;
+  max-height: 50vh;
   display: flex;
   flex-direction: column;
-  z-index: 1000;
+  z-index: 2100;
 }
 .modal-bottom-header {
   display: flex;
@@ -452,13 +453,13 @@
 
 ```css
 .action-sheet {
-  position: fixed;
+  position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
   background: var(--color-bg-primary);
   border-radius: var(--radius-modal) var(--radius-modal) 0 0;
-  z-index: 1000;
+  z-index: 2100;
 }
 .action-sheet-item {
   height: 48px;
@@ -580,7 +581,7 @@ function showToast(message, duration = 2000) {
 
 ```css
 .toast {
-  position: fixed;
+  position: absolute;
   bottom: 100px;
   left: 50%;
   transform: translateX(-50%);
@@ -589,7 +590,7 @@ function showToast(message, duration = 2000) {
   padding: 10px 20px;
   border-radius: 20px;
   font-size: var(--font-body);
-  z-index: 2000;
+  z-index: 3000;
   transition: all 0.3s ease;
 }
 ```
@@ -956,20 +957,33 @@ function initSwiper(id, interval = 5000) {
 
 ### CSS变量要求
 
-组件依赖以下CSS变量，必须在页面中定义：
+组件依赖以下CSS变量，必须在页面中定义。变量名必须与 `prototype-rules.md` 第七章统一设计Token完全一致：
 
 ```css
 :root {
-  /* 颜色 */
+  /* 品牌色 */
   --color-primary: #FF6B35;
-  --color-error: #FF4D4F;
-  --color-text-primary: #333;
-  --color-text-secondary: #666;
-  --color-text-tertiary: #999;
-  --color-bg-primary: #fff;
+  --color-primary-light: #FF8A5C;
+  --color-primary-dark: #E55A2B;
+  
+  /* 功能色 */
+  --color-success: #52c41a;
+  --color-warning: #faad14;
+  --color-error: #ff4d4f;
+  
+  /* 文字色 */
+  --color-text-primary: #333333;
+  --color-text-secondary: #666666;
+  --color-text-tertiary: #999999;
+  
+  /* 背景色 */
+  --color-bg-primary: #ffffff;
   --color-bg-secondary: #f5f5f5;
   --color-bg-tertiary: #f0f0f0;
+  
+  /* 边框与分割 */
   --color-border: #e5e5e5;
+  --color-divider: #f0f0f0;
   
   /* 字体 */
   --font-h1: 20px;
@@ -978,11 +992,12 @@ function initSwiper(id, interval = 5000) {
   --font-body: 14px;
   --font-caption: 12px;
   
-  /* 间距 */
+  /* 间距（基于8px网格） */
   --spacing-page: 16px;
   --spacing-module: 16px;
   --spacing-card: 12px;
   --spacing-element: 8px;
+  --spacing-compact: 4px;
   
   /* 圆角 */
   --radius-card: 12px;
