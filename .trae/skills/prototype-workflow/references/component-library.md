@@ -944,6 +944,258 @@ function initSwiper(id, interval = 5000) {
 }
 ```
 
+### 21. 下拉刷新
+
+```html
+<div class="pull-refresh" id="pullRefresh">
+  <div class="refresh-indicator">
+    <svg class="refresh-icon" viewBox="0 0 24 24"><path d="M17.65 6.35A7.95 7.95 0 0 0 12 4a8 8 0 0 0-8 8 8 8 0 0 0 8 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18a6 6 0 0 1-6-6 6 6 0 0 1 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+    <span class="refresh-text">下拉刷新</span>
+  </div>
+  <div class="refresh-content">
+    <!-- 列表内容 -->
+  </div>
+</div>
+```
+
+```css
+.pull-refresh {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.refresh-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 50px;
+  gap: 8px;
+  color: var(--color-text-secondary);
+  font-size: var(--font-small);
+}
+.refresh-icon {
+  width: 20px;
+  height: 20px;
+  fill: var(--color-text-secondary);
+  transition: transform 0.2s;
+}
+.refresh-icon.rotating {
+  animation: rotate 1s linear infinite;
+}
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+```
+
+### 22. 上拉加载更多
+
+```html
+<div class="load-more" id="loadMore">
+  <div class="load-more-content">
+    <!-- 列表内容 -->
+  </div>
+  <div class="load-more-footer">
+    <span class="load-more-text">上拉加载更多</span>
+  </div>
+</div>
+```
+
+```css
+.load-more {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.load-more-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 50px;
+  color: var(--color-text-secondary);
+  font-size: var(--font-small);
+}
+.load-more-footer.loading::before {
+  content: '';
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  margin-right: 8px;
+  animation: rotate 1s linear infinite;
+}
+```
+
+### 23. 左滑操作（列表项）
+
+```html
+<div class="swipe-item">
+  <div class="swipe-content" ontouchstart="handleTouchStart(this)" ontouchmove="handleTouchMove(this)" ontouchend="handleTouchEnd(this)">
+    <div class="list-item">列表内容</div>
+  </div>
+  <div class="swipe-actions">
+    <button class="swipe-btn edit">编辑</button>
+    <button class="swipe-btn delete">删除</button>
+  </div>
+</div>
+```
+
+```css
+.swipe-item {
+  position: relative;
+  overflow: hidden;
+}
+.swipe-content {
+  position: relative;
+  z-index: 1;
+  background: var(--color-bg-primary);
+  transition: transform 0.3s ease;
+}
+.swipe-actions {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  z-index: 0;
+}
+.swipe-btn {
+  width: 80px;
+  height: 100%;
+  border: none;
+  color: #fff;
+  font-size: var(--font-body);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.swipe-btn.edit { background: var(--color-primary); }
+.swipe-btn.delete { background: #FF4D4F; }
+```
+
+```javascript
+let startX = 0, currentX = 0;
+function handleTouchStart(el) {
+  startX = event.touches[0].clientX;
+}
+function handleTouchMove(el) {
+  currentX = event.touches[0].clientX;
+  const diff = currentX - startX;
+  if (diff < 0 && diff > -160) {
+    el.style.transform = `translateX(${diff}px)`;
+  }
+}
+function handleTouchEnd(el) {
+  const diff = currentX - startX;
+  if (diff < -80) {
+    el.style.transform = 'translateX(-160px)';
+  } else {
+    el.style.transform = 'translateX(0)';
+  }
+}
+```
+
+### 24. Tab切换（分段控制器）
+
+```html
+<div class="tab-bar">
+  <div class="tab-item active" onclick="switchTab(this, 0)">全部</div>
+  <div class="tab-item" onclick="switchTab(this, 1)">待付款</div>
+  <div class="tab-item" onclick="switchTab(this, 2)">待发货</div>
+  <div class="tab-item" onclick="switchTab(this, 3)">已完成</div>
+</div>
+<div class="tab-content">
+  <div class="tab-panel active">内容1</div>
+  <div class="tab-panel">内容2</div>
+  <div class="tab-panel">内容3</div>
+  <div class="tab-panel">内容4</div>
+</div>
+```
+
+```css
+.tab-bar {
+  display: flex;
+  background: var(--color-bg-primary);
+  border-bottom: 1px solid var(--color-border);
+}
+.tab-item {
+  flex: 1;
+  text-align: center;
+  padding: 12px 0;
+  font-size: var(--font-body);
+  color: var(--color-text-secondary);
+  position: relative;
+  cursor: pointer;
+}
+.tab-item.active {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+.tab-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 3px;
+  background: var(--color-primary);
+  border-radius: 2px;
+}
+.tab-panel {
+  display: none;
+}
+.tab-panel.active {
+  display: block;
+}
+```
+
+```javascript
+function switchTab(el, index) {
+  const tabs = el.parentElement.querySelectorAll('.tab-item');
+  const panels = el.parentElement.nextElementSibling.querySelectorAll('.tab-panel');
+  tabs.forEach(t => t.classList.remove('active'));
+  panels.forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  panels[index].classList.add('active');
+}
+```
+
+### 25. FAB悬浮按钮（Floating Action Button）
+
+```html
+<button class="fab" onclick="handleFabClick()">
+  <svg class="fab-icon" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+</button>
+```
+
+```css
+.fab {
+  position: absolute;
+  right: 16px;
+  bottom: 80px; /* 底部导航栏上方 */
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  border: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  cursor: pointer;
+}
+.fab:active {
+  transform: scale(0.95);
+}
+.fab-icon {
+  width: 24px;
+  height: 24px;
+  fill: #fff;
+}
+```
+
 ---
 
 ## 组件使用说明
