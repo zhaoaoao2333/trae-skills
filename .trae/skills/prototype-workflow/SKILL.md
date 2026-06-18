@@ -41,7 +41,7 @@ description: "从需求到原型的完整工作流，分七阶段执行：项目
 
 - **阶段三（需求梳理）和阶段四（功能细化）**：自动调用 `requirement-analysis` 技能
 - **阶段五（PRD 产出）**：加载 `references/prd-rules.md`
-- **阶段六（原型生成）**：加载 `references/prototype-rules.md`（全行业通用规范）+ `references/industry-rules.md`（行业特定规范，根据项目类型加载对应章节）
+- **阶段六（原型生成）**：加载 `references/prototype-rules.md`（全行业通用规范，含规则编号体系/设计纲要规范/交互补全清单/质量评分标准）+ `references/industry-rules.md`（行业特定规范）+ `references/design-outline-template.md`（设计纲要模板）
 - **全局适用**：加载 `references/priority-rules.md`、`references/project-rules.md`
 
 ---
