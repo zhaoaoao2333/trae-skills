@@ -29,11 +29,23 @@ description: "从需求到原型的完整工作流，分七阶段执行：项目
 
 ## 触发条件
 
+### 主流程触发
+
 - PM 声明"新项目"
 - 用户需要制作原型
 - 用户需要编写 PRD
 - 用户从需求出发进行产品设计
 - 用户提到"原型""PRD""需求文档""产品设计"等关键词
+
+### 设计分析师独立触发
+
+- 用户说"分析这个页面/原型"
+- 用户说"提炼这个页面的设计规则"
+- 用户说"看看这个设计有什么值得学的"
+- 用户说"把这个页面的规则存下来"
+- 用户提供页面链接/截图/HTML代码并要求分析设计
+
+> 独立触发时，直接调用 `references/design-analyst.md` 中的设计分析师Agent，输出提炼的规则供PM审核，审核通过后追加到 `references/frontend-design-rules.md`。
 
 ## 引用规则
 
@@ -45,6 +57,7 @@ description: "从需求到原型的完整工作流，分七阶段执行：项目
 - **阶段五（PRD 产出）**：加载 `references/prd-rules.md`
 - **阶段六（原型生成）**：
   - 加载 `references/prototype-rules.md`（全行业通用规范，含规则编号体系/设计纲要规范/交互补全清单/质量评分标准）
+  - 加载 `references/frontend-design-rules.md`（案例驱动设计规则，从页面提炼的具体规则，最高优先级）
   - 加载 `references/industry-rules.md`（行业特定规范）
   - 加载 `references/industry-templates.md`（行业模板库）
   - 加载 `references/component-library.md`（组件库）
@@ -52,6 +65,7 @@ description: "从需求到原型的完整工作流，分七阶段执行：项目
   - 加载 `references/case-library.md`（案例库沉淀机制）
   - 加载 `references/design-outline-template.md`（设计纲要模板）
   - **调用 `references/ue-designer.md`（老K设计师Agent）主导设计纲要生成和三层审查**
+  - **调用 `references/design-analyst.md`（设计分析师Agent）仅在项目收尾时分析原型提炼规则**
 - **全局适用**：加载 `references/priority-rules.md`、`references/project-rules.md`
 
 ---
@@ -476,6 +490,16 @@ PRD 六部分结构：
 > 1. **设计纲要阶段**：老K主导生成设计纲要，审查布局/交互/视觉/补充价值
 > 2. **框架设计阶段**：老K审查页面框架的合规性、闭环性、一致性
 > 3. **交付前阶段**：老K走查设计还原度、交互细腻度、视觉精致度
+>
+> **此阶段规则加载优先级（从高到低）**：
+> 1. `references/frontend-design-rules.md`（案例驱动规则，从实际页面提炼，最高优先级）
+> 2. `references/prototype-rules.md`（全行业通用规范）
+> 3. `references/industry-rules.md`（行业特定规范）
+> 4. `references/industry-templates.md`（行业模板库）
+> 5. `references/component-library.md`（组件库）
+> 6. `references/design-patterns.md`（设计模式库）
+>
+> **冲突处理**：案例规则与通用规范冲突时，以案例规则为准（但需标注冲突供后续审核）。
 >
 > **此阶段必须严格遵循 `references/prototype-rules.md` 中以下关键规范**：
 > - 功能拆分与合并判断原则（公共/隐私分离、主次分明）
@@ -937,6 +961,44 @@ PM 审阅框架设计（含老K审查报告），对每个页面确认后，才�
 
 **询问 PM**：是否将本次AI经验补充到 `references/ai-assessment-template.md` 的示例库中，供后续项目参考
 
+### 步骤 7.3 — 设计规则提炼 🔑
+
+> **新增步骤**：项目收尾时，调用设计分析师Agent从本次项目的原型中提炼可复用设计规则。
+
+**触发条件**：
+- 项目正常完成（原型已交付，PM已终审）
+- PM未明确拒绝规则提炼
+
+**执行流程**：
+
+1. **调用设计分析师Agent**（`references/design-analyst.md`）
+   - 输入：本次项目的原型代码（HTML/CSS/JS）
+   - 分析维度：导航/布局/交互/状态/组件（5个维度）
+   - 输出：提炼的设计规则（按`【规则-分类-编号】`格式）
+
+2. **规则去重与审核**
+   - 与 `references/frontend-design-rules.md` 中已有规则去重
+   - 与 `references/prototype-rules.md` 中通用规范对比，检查是否冲突
+   - 按收录标准筛选（可复用性/明确性/案例支撑/非通用常识）
+
+3. **PM审核**
+   - AI输出提炼的规则清单
+   - PM审核每条规则：采纳/修改/丢弃
+   - 特别关注标注了"需人工确认"的规则
+
+4. **规则入库**
+   - PM确认后，AI将规则追加到 `references/frontend-design-rules.md`
+   - 更新规则维护记录表
+   - 推送到GitHub
+
+**输出**：
+- 《设计规则提炼报告》（写入 `00-项目记录/design-rules-extraction.md`）
+- 更新后的 `references/frontend-design-rules.md`
+
+**询问 PM**：
+- 是否将本次提炼的规则收录到规则库？
+- 是否有其他页面/原型需要额外分析？
+
 ---
 
 ## 上下文记忆机制
@@ -978,6 +1040,16 @@ PM 审阅框架设计（含老K审查报告），对每个页面确认后，才�
 ### 阶段六：原型
 - [日期] 风格方案已确认: [方案描述]
 - [日期] 页面结构已确认
+- [日期] 老K设计纲要审查: [通过/需修正]
+- [日期] 老K框架审查: [通过/需修正]
+- [日期] 老K交付前走查: [通过/需修复]
+- [日期] 质量评分: [X分]
+
+### 阶段七：项目收尾
+- [日期] 项目经验已沉淀
+- [日期] AI经验已沉淀（如有）
+- [日期] 设计规则已提炼: [X条规则，已收录Y条]
+- [日期] 规则已推送GitHub
 ```
 
 ### 记忆规则
