@@ -272,6 +272,66 @@
 - 左侧箭头
 - 所有非顶层页必须有返回路径
 
+### SPA导航架构规范
+
+> 适用于采用单页应用（SPA）架构的原型，使用 `pageStack` 管理页面层级，`tab-bar` 控制显隐。
+
+#### 核心机制：pageStack + tab-bar显隐控制
+
+**一级页面（白名单）**：对应底部Tab的各主页面 → tab-bar**显示**
+**二级/三级页面（所有子页）**：通过 `navigateTo()` 进入 → tab-bar**隐藏**
+**返回**：`goBack()` → 检测pageStack长度 → 如回到一级页面则**显示**tab-bar
+
+#### 实现要点
+
+1. **页面分级管理**
+   - 建立一级页面白名单（通常对应底部Tab的各主页面，如 `home` / `workbench` / `mine`）
+   - 所有非白名单页面视为二级/三级页面
+
+2. **Tab-bar显隐规则**
+   - 进入二级页面时：**立即隐藏** tab-bar
+   - 从二级页面返回时：检测pageStack，如为空则**显示** tab-bar
+   - 禁止在二级页面中通过tab-bar切换Tab（应先返回一级页面）
+
+3. **返回按钮逻辑**
+   - 每个非顶层页顶部必须有返回箭头（←）
+   - `goBack()` 根据pageStack回退到上一页
+   - 返回后如回到一级页面，同步显示tab-bar
+
+4. **代码实现模板**
+
+```javascript
+// 一级页面白名单
+const primaryPages = ['home', 'workbench', 'mine'];
+
+// 页面跳转（二级页面）
+function navigateTo(pageId) {
+  // 隐藏tab-bar
+  document.getElementById('tab-bar').style.display = 'none';
+  // 切换页面
+  switchPage(pageId);
+  // 压入pageStack
+  pageStack.push(pageId);
+}
+
+// 返回上一页
+function goBack() {
+  pageStack.pop();
+  const prevPage = pageStack[pageStack.length - 1];
+  switchPage(prevPage);
+  // 判断是否回到一级页面
+  if (pageStack.length === 1 && primaryPages.includes(prevPage)) {
+    document.getElementById('tab-bar').style.display = 'flex';
+  }
+}
+```
+
+5. **常见Bug预防**
+   - ❌ 二级页面未隐藏tab-bar → 切换Tab导致多page同时active
+   - ❌ 返回后未显示tab-bar → 一级页面缺失导航
+   - ❌ 二级页面中tab-bar可点击 → 导航路径断裂
+   - ❌ 返回按钮在特定场景失效 → 需建立一级页面白名单判断
+
 ---
 
 ## 六、功能拆分与合并判断原则
@@ -537,6 +597,30 @@ HTML原型必须使用固定宽度的手机容器，禁止直接全屏铺开：
 - **底部导航**：`position: absolute; bottom: 0;`
 - **弹出层**：`position: absolute;` 覆盖 phone-frame 全区域
 - **内容滚动**：只在 page-content 内滚动，phone-frame 禁止滚动
+
+### 底部安全区（Home-Indicator）适配
+
+**问题**：iPhone X及以上机型的home-indicator区域会遮挡底部导航栏内容。
+
+**规范**：
+- tab-bar必须增加padding-bottom适配底部安全区
+- CSS实现：`padding-bottom: env(safe-area-inset-bottom)` 或固定值 `padding-bottom: 34px`
+- 禁止将关键按钮放置在home-indicator区域
+- 底部按钮与home-indicator之间至少保留8px间距
+
+**检查方法**：
+- 在iPhone X及以上模拟器中检查底部导航是否被遮挡
+- 检查tab-bar底部是否有足够留白
+- 检查底部按钮是否可正常点击
+
+**代码示例**：
+```css
+.tab-bar {
+  height: 56px;
+  padding-bottom: env(safe-area-inset-bottom); /* iOS安全区适配 */
+  /* 或固定值：padding-bottom: 34px; */
+}
+```
 
 ---
 
@@ -993,6 +1077,44 @@ HTML原型必须使用固定宽度的手机容器，禁止直接全屏铺开：
 - 成功态（有操作时）
 - 权限受限（有权限时）
 
+### 状态覆盖检查表（按页面类型）
+
+原型生成后，对照下表检查各页面的状态覆盖是否完整：
+
+| 页面类型 | 常规态 | 空状态 | 加载中 | 错误态 | 成功态 | 权限受限 |
+|---------|--------|--------|--------|--------|--------|---------|
+| **首页（列表型）** | 列表数据正常展示 | 无数据插图+引导文案+操作按钮 | 骨架屏/转圈 | 网络异常+重试按钮 | 操作成功Toast | 功能隐藏/提示升级 |
+| **首页（数据看板）** | 指标数据正常 | 无数据提示 | 骨架屏 | 加载失败+重试 | 数据刷新成功提示 | 部分指标隐藏 |
+| **详情页** | 完整信息展示 | 信息缺失提示 | 骨架屏 | 加载失败+重试 | 提交成功+自动返回 | 只读/禁用编辑 |
+| **表单页** | 可编辑表单 | - | 提交中loading | 提交失败+保留已填数据 | 提交成功+跳转 | 只读/禁用 |
+| **列表页** | 列表数据+筛选 | 无匹配结果提示+重置筛选 | 骨架屏/转圈 | 加载失败+重试 | 批量操作成功Toast | 部分操作隐藏 |
+| **个人中心** | 个人信息展示 | 未登录提示+登录按钮 | 骨架屏 | 加载失败 | - | 未登录态 |
+| **消息/通知** | 消息列表 | 无消息插图+引导 | 下拉刷新动画 | 加载失败+重试 | 标记已读成功 | - |
+| **搜索页** | 搜索结果/历史记录 | 无结果提示+推荐内容 | 搜索中loading | 搜索失败+重试 | - | - |
+
+### 状态设计要点
+
+**空状态**：
+- 必须有插图（简洁风格）+ 14px灰色提示文字 + 操作引导按钮
+- 禁止仅用"暂无数据"四个字
+- 空状态不强制导航，使用弹窗/引导按钮引导添加内容
+
+**加载态**：
+- 整页加载优先使用骨架屏
+- 下拉刷新使用圆形动画
+- 上拉加载使用"加载中"文字+转圈
+- 按钮提交使用按钮内loading（避免弹窗阻断）
+
+**错误态**：
+- 必须提供自救路径（重试/刷新/联系客服）
+- 错误文案要具体（"网络连接失败，请检查网络后重试"而非"出错了"）
+- 表单错误要在对应字段旁显示错误提示
+
+**成功态**：
+- 轻量操作使用Toast（2秒自动消失）
+- 重要操作使用成功页或弹窗
+- 操作成功后如需要跳转，给出明确提示
+
 ---
 
 ## 十二-A、业务规则设计原则
@@ -1197,6 +1319,33 @@ function injectComponents() {
 - 修复后必须执行实机预览验证，确认页面可见
 - `.page.active` 等关键规则必须加入DOM完整性检查
 - **推荐**：修复脚本使用AST解析CSS，而非正则替换
+
+### SPA导航自检清单（必检）
+
+> 适用于采用SPA架构（单页应用）的原型，在"HTML产出物自检清单"基础上额外执行。
+
+原型生成后，必须执行以下8项SPA导航检查：
+
+| 序号 | 检查项 | 检查方法 | 通过标准 |
+|------|--------|---------|---------|
+| 1 | 二级页面进入时tab-bar隐藏 | 点击任意二级页面入口 | tab-bar不可见 |
+| 2 | 二级页面返回时tab-bar显示 | 点击返回按钮 | 如回到一级页面，tab-bar可见 |
+| 3 | 二级页面中点击tab-bar切换 | 在二级页面点击tab-bar | 应先返回一级页面再切换，或tab-bar不可点击 |
+| 4 | 返回按钮每级页面可用 | 从三级页面逐级返回 | 每一级都能正确返回 |
+| 5 | 唯一active页面 | 检查DOM | 任何时候只有一个.page.active |
+| 6 | home-indicator不重叠 | 检查底部安全区 | tab-bar与home-indicator无视觉重叠 |
+| 7 | pageStack状态正确 | 检查导航状态 | 一级页面pageStack为空，二级页面有内容 |
+| 8 | 无死胡同页面 | 遍历所有页面 | 每个页面都有明确的返回路径或出口 |
+
+**Bug排查指南**：
+
+| 现象 | 可能原因 | 排查方法 |
+|------|---------|---------|
+| 二级页面tab-bar未隐藏 | navigateTo()未隐藏tab-bar | 检查navigateTo()函数是否有`tabBar.style.display = 'none'` |
+| 返回后tab-bar未显示 | goBack()未检测一级页面 | 检查goBack()中是否有pageStack长度判断 |
+| 多page同时active | 切换页面时未移除旧page的active | 检查switchPage()是否先移除所有active再添加 |
+| 返回按钮失效 | pageStack为空或返回逻辑错误 | 检查pageStack初始化和goBack()逻辑 |
+| 底部被遮挡 | home-indicator未适配 | 检查tab-bar是否有padding-bottom |
 
 ### 浏览器兼容性注意事项
 

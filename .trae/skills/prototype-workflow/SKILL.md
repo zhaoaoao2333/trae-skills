@@ -58,6 +58,7 @@ description: "从需求到原型的完整工作流，分七阶段执行：项目
 - **阶段六（原型生成）**：
   - 加载 `references/prototype-rules.md`（全行业通用规范，含规则编号体系/设计纲要规范/交互补全清单/质量评分标准）
   - 加载 `references/frontend-design-rules.md`（案例驱动设计规则，从页面提炼的具体规则，最高优先级）
+  - 加载 `references/user-centric-design.md`（用户群体差异化设计指南，多端口设计分化参考）
   - 加载 `references/industry-rules.md`（行业特定规范）
   - 加载 `references/industry-templates.md`（行业模板库）
   - 加载 `references/component-library.md`（组件库）
@@ -494,10 +495,11 @@ PRD 六部分结构：
 > **此阶段规则加载优先级（从高到低）**：
 > 1. `references/frontend-design-rules.md`（案例驱动规则，从实际页面提炼，最高优先级）
 > 2. `references/prototype-rules.md`（全行业通用规范）
-> 3. `references/industry-rules.md`（行业特定规范）
-> 4. `references/industry-templates.md`（行业模板库）
-> 5. `references/component-library.md`（组件库）
-> 6. `references/design-patterns.md`（设计模式库）
+> 3. `references/user-centric-design.md`（用户群体差异化设计指南，多端口设计分化参考）
+> 4. `references/industry-rules.md`（行业特定规范）
+> 5. `references/industry-templates.md`（行业模板库）
+> 6. `references/component-library.md`（组件库）
+> 7. `references/design-patterns.md`（设计模式库）
 >
 > **冲突处理**：案例规则与通用规范冲突时，以案例规则为准（但需标注冲突供后续审核）。
 >
