@@ -18,6 +18,7 @@
 | 布局规则-03 | 移动端单列布局，单行内容宽度不超过屏幕宽度的90% | 视口与容器约束 |
 | 布局规则-04 | 首页视觉重心放在上半屏（屏幕高度的50%以内），确保首屏可见核心价值点 | 首页布局混合策略 |
 | 布局规则-05 | 不同区块必须使用不同布局方式（轮播/网格/横滑/纵向），禁止全部横向滚动 | 首页布局混合策略 |
+| 布局规则-06 | absolute定位的navbar必须设置top:32px避开状态栏；relative定位的navbar依赖.page的padding-top | navbar定位差异 |
 
 ### 交互规则
 
@@ -38,6 +39,7 @@
 | 视觉规则-03 | 所有间距基于8px网格系统：元素间8px、模块间16px、页面边距16px、卡片内边距12px | 间距体系 |
 | 视觉规则-04 | 同层级组件圆角统一：卡片12px、按钮6px、输入框8px、弹窗16px | 圆角体系 |
 | 视觉规则-05 | SVG图标必须设置固定width/height，禁止随容器撑开 | SVG图标与文字容器规范 |
+| 视觉规则-06 | 相邻功能区块之间必须预留8-16px间隔，禁止组件贴在一起 | 间距体系 |
 
 ### 状态规则
 
@@ -378,6 +380,23 @@ function goBack() {
 | xxl | 24px | 大区块间距、页面左右边距 |
 | xxxl | 32px | 页面顶部/底部留白 |
 
+**相邻功能区块间距**：
+- 相邻功能区块之间必须预留 **8-16px** 间隔
+- 典型场景：tabs和列表内容之间、卡片组和按钮之间、筛选区和列表之间
+- 禁止使用`margin: 0`或`padding: 0`让组件贴在一起
+
+```css
+/* 正确：预留间隔 */
+.home-list {
+  padding: 16px; /* 或 padding-top: 16px */
+}
+
+/* 错误：组件贴在一起 */
+.home-list {
+  padding: 0; /* 禁止 */
+}
+```
+
 ### 字体尺寸体系
 
 | Token | 值 | 用途 |
@@ -510,6 +529,146 @@ HTML原型必须使用固定宽度的手机容器，禁止直接全屏铺开：
   overflow: hidden; /* 防止内容溢出 */
 }
 ```
+
+### 手机边框样式（移动端原型）
+
+移动端原型必须在phone-frame外添加手机边框容器，直观呈现APP效果：
+
+```css
+/* 手机外框 */
+.phone-border {
+  width: 375px;
+  height: 812px;
+  margin: 0 auto;
+  border-radius: 44px;
+  background: #1a1a2e; /* 深色边框 */
+  padding: 12px; /* 屏幕黑边 */
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+```
+
+**要求**：
+- 边框圆角：44px（模拟iPhone风格）
+- 边框背景：深色（#1a1a2e），与屏幕内容形成对比
+- 内边距：12px（模拟屏幕黑边）
+- phone-frame放在.phone-border内部
+
+### 状态栏组件规范 🔴
+
+移动端原型必须包含独立状态栏组件，不可省略或用伪元素替代：
+
+```html
+<!-- 状态栏 — 必须作为独立DOM组件 -->
+<div class="status-bar">
+  <span class="status-time">9:41</span>
+  <div class="status-icons">
+    <span class="icon-signal">📶</span>
+    <span class="icon-wifi">📡</span>
+    <span class="icon-battery">🔋</span>
+  </div>
+</div>
+```
+
+```css
+.status-bar {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 16px;
+  z-index: 9999;
+  pointer-events: none; /* 不拦截点击 */
+}
+```
+
+**状态栏要求**：
+- 必须包含三要素：时间（左）、信号（右）、电池（右）
+- 高度：32px
+- z-index: 9999（最高层级）
+- pointer-events: none（不拦截下方点击）
+- 绝对定位，覆盖在页面内容之上
+
+### 状态栏颜色管理
+
+状态栏文字颜色必须根据页面背景动态切换：
+
+```css
+/* 浅色背景页面 → 黑色文字 */
+.status-bar { color: #000; }
+
+/* 深色背景页面（如首页header）→ 白色文字 */
+.status-bar.light { color: #fff; }
+```
+
+**管理方案**：
+- 使用`lightPages`白名单数组管理需要白色状态栏的页面
+- 所有页面切换函数（goPage/goBack/switchTab/doLogin）统一调用`updateStatusBar(pageId)`
+- **禁止**使用渐变背景做文字对比保障（渐变底部透明会导致文字在某些背景上不可见）
+
+### .page 安全间距
+
+所有`.page`必须默认预留32px状态栏安全间距：
+
+```css
+.page {
+  padding-top: 32px; /* 状态栏安全间距 */
+  overflow: hidden;
+}
+```
+
+**首页特殊处理**：
+- 首页必须添加`page-home`类
+- 首页移除顶部padding，让header背景向上延伸覆盖状态栏区域
+
+```css
+.page-home {
+  padding-top: 0 !important;
+}
+
+.home-header {
+  padding-top: 52px; /* 覆盖状态栏高度 + 原padding */
+  background: var(--color-primary); /* header背景色覆盖状态栏区域 */
+}
+```
+
+**常见错误**：
+- 未给`#page-home`添加`page-home`类 → CSS规则不生效
+- `home-header`的padding-top不足 → 状态栏区域显示为page背景色而非header背景色
+
+### navbar 定位差异 🔴
+
+**必须区分`absolute`和`relative`定位对父元素padding的不同响应。**
+
+| 定位类型 | 受父元素padding影响 | 从顶部开始位置 | 适用场景 |
+|---------|-------------------|--------------|---------|
+| `position: relative` | ✅ 受影响 | 从`.page`的`padding-top: 32px`下方开始 | 服务区端nav-bar（依赖.page安全间距） |
+| `position: absolute` | ❌ 不受影响 | 从0px开始（会覆盖状态栏） | 需要手动设置`top: 32px`避开状态栏 |
+
+**员工端navbar规范**（使用absolute定位）：
+```css
+.nav-bar {
+  position: absolute;
+  top: 32px; /* 必须偏移，避开0-32px状态栏区域 */
+  left: 0; right: 0;
+  height: 44px;
+  z-index: 100;
+}
+```
+
+**服务区端navbar规范**（使用relative定位）：
+```css
+.nav-bar {
+  position: relative; /* 受.page的padding-top: 32px影响，自然从32px开始 */
+  height: 44px;
+}
+```
+
+**关键原则**：
+- `absolute`定位的navbar必须设置`top: 32px`
+- `relative`定位的navbar依赖`.page`的`padding-top: 32px`
+- 禁止混用导致重叠或间距不一致
 
 ### 底部导航容器
 
@@ -1428,6 +1587,7 @@ function injectComponents() {
 ## 十五、交付标准
 
 - [ ] 端口正确
+- [ ] **多端口项目**：已按端口拆分为独立HTML文件（每端口一个文件）
 - [ ] 页面风格符合行业特性
 - [ ] **小程序端口**：顶部导航栏右侧未放置任何内容（胶囊按钮区禁止覆盖）
 - [ ] **小程序端口**：消息/搜索/分享等功能已移至底部导航或金刚区，非顶部导航栏右侧
@@ -1470,6 +1630,8 @@ function injectComponents() {
 - [ ] 与 PRD 一致
 - [ ] 输出格式符合方案（多文件开发期 / 单文件分享期）
 - [ ] 无外部依赖，离线可正常查看
+- [ ] **代码完整性**：JS语法检查通过，无残余错误代码片段、无引号嵌套导致的解析错误
+- [ ] **登录预填**：登录页面已预填演示账号和密码，点击即可登录
 - [ ] 弹窗高度不超过屏幕50%，超出部分内部滚动
 - [ ] 选择型弹窗底部有「新建」入口，标题栏有「取消」按钮
 - [ ] 空状态不强制跳转，通过弹窗/引导按钮添加数据
