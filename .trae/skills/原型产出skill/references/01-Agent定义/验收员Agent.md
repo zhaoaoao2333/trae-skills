@@ -569,7 +569,7 @@ function goBack() {
 
 ## 七、与设计师的协作
 
-验收员发现问题后，将测试报告提交给设计师（`references/designer.md`）。
+验收员发现问题后，将测试报告提交给设计师（`references/01-Agent定义/设计师Agent.md`）。
 
 ### 验收员输出要求
 
